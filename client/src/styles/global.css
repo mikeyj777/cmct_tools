@@ -7,3 +7,4 @@ import and include all other component stylesheets for reference */
 @import './functional.css';
 @import './plotlyviewer.css';
 @import './radanalysis.css';
+@import './mapping.css';
