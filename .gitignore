@@ -26,4 +26,3 @@ venv
 hostinger_vps.txt
 node_modules
 *.bat
-*.whl
