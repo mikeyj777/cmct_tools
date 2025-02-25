@@ -1,0 +1,6 @@
+flask backend
+port 8081
+service name Flask_Rad_Analysis
+
+react front end
+port 8082
