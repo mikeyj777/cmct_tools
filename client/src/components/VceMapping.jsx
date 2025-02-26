@@ -29,7 +29,7 @@ const LeafletMap = () => {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [activeLayer, setActiveLayer] = useState('street');
+  const [activeLayer, setActiveLayer] = useState('aerial');
   const [searchStatus, setSearchStatus] = useState('');
   const [locationStatus, setLocationStatus] = useState('');
   
@@ -38,6 +38,9 @@ const LeafletMap = () => {
   const [jsonFile, setJsonFile] = useState(null);
   const [jsonData, setJsonData] = useState(null);
   const [fileName, setFileName] = useState('');
+  const [currentReleaseLocation, setCurrentReleaseLocation] = useState(null);
+  const [showGuidanceBanner, setShowGuidanceBanner] = useState(false);
+  const [locationUpdated, setLocationUpdated] = useState(false);
 
   // Initialize the map
   useEffect(() => {
@@ -48,12 +51,12 @@ const LeafletMap = () => {
       // Add the default street layer
       const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
+      });
       
       // Add aerial/satellite layer
       const aerialLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      });
+      }).addTo(map);
       
       // Store layers for later toggling
       map.layers = {
@@ -88,15 +91,45 @@ const LeafletMap = () => {
           releaseMarkerRef.current.setLatLng([ApproxLatitude, ApproxLongitude]);
         } else {
           releaseMarkerRef.current = L.marker([ApproxLatitude, ApproxLongitude], { 
-            icon: releaseIcon 
+            icon: releaseIcon,
+            draggable: activeStep === 1 // Only draggable in step 2
           })
             .addTo(mapRef.current)
             .bindPopup('Release Point')
             .openPopup();
+            
+          // Add drag event handler
+          releaseMarkerRef.current.on('dragend', function(event) {
+            const marker = event.target;
+            const position = marker.getLatLng();
+            setCurrentReleaseLocation({
+              lat: position.lat.toFixed(6),
+              lng: position.lng.toFixed(6)
+            });
+            setLocationUpdated(true);
+          });
         }
+        
+        setCurrentReleaseLocation({
+          lat: ApproxLatitude.toFixed(6),
+          lng: ApproxLongitude.toFixed(6)
+        });
       }
     }
   }, [mapLoaded, jsonData]);
+
+  // Update marker draggability based on active step
+  useEffect(() => {
+    if (releaseMarkerRef.current) {
+      if (activeStep === 1) {
+        releaseMarkerRef.current.dragging.enable();
+        setShowGuidanceBanner(true);
+      } else {
+        releaseMarkerRef.current.dragging.disable();
+        setShowGuidanceBanner(false);
+      }
+    }
+  }, [activeStep]);
 
   // Function to toggle between map layers
   const toggleMapLayer = (layerType) => {
@@ -231,6 +264,25 @@ const LeafletMap = () => {
   const toggleStep = (index) => {
     setActiveStep(activeStep === index ? -1 : index);
   };
+  
+  // Function to update release location in the JSON data
+  const updateReleaseLocation = () => {
+    if (currentReleaseLocation && jsonData) {
+      // Create a new JSON data object with updated coordinates
+      const updatedJsonData = {
+        ...jsonData,
+        PrimaryInputs: {
+          ...jsonData.PrimaryInputs,
+          ApproxLatitude: parseFloat(currentReleaseLocation.lat),
+          ApproxLongitude: parseFloat(currentReleaseLocation.lng)
+        }
+      };
+      
+      setJsonData(updatedJsonData);
+      setLocationUpdated(false);
+      alert('Release location has been updated successfully!');
+    }
+  };
 
   return (
     <div className="map-container">
@@ -287,42 +339,34 @@ const LeafletMap = () => {
             )}
           </div>
           
-          {/* Future steps would go here */}
+          {/* Step 2 - Verify Release Location */}
           <div className="step">
             <div 
               className={`step-header ${activeStep === 1 ? 'active' : ''}`} 
               onClick={() => toggleStep(1)}
             >
-              <span>2. Buildings Analysis</span>
+              <span>2. Verify Release Location</span>
               <span>{activeStep === 1 ? '−' : '+'}</span>
             </div>
             {activeStep === 1 && (
               <div className="step-content">
-                <p>Building analysis will be implemented in the next phase.</p>
-                {jsonData && jsonData.BuildingInfo && (
-                  <div>
-                    <p>Number of buildings: {jsonData.BuildingInfo.length}</p>
+                {jsonData && currentReleaseLocation ? (
+                  <div className="location-info">
+                    <p>Current release coordinates:</p>
+                    <div className="coordinates">
+                      Latitude: {currentReleaseLocation.lat}<br />
+                      Longitude: {currentReleaseLocation.lng}
+                    </div>
+                    <p>Drag the marker on the map to adjust the release point location.</p>
+                    <button 
+                      className="done-button" 
+                      onClick={updateReleaseLocation}
+                    >
+                      Done
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-          
-          <div className="step">
-            <div 
-              className={`step-header ${activeStep === 2 ? 'active' : ''}`} 
-              onClick={() => toggleStep(2)}
-            >
-              <span>3. Chemical Analysis</span>
-              <span>{activeStep === 2 ? '−' : '+'}</span>
-            </div>
-            {activeStep === 2 && (
-              <div className="step-content">
-                <p>Chemical analysis will be implemented in the next phase.</p>
-                {jsonData && jsonData.ChemicalComponents && (
-                  <div>
-                    <p>Number of chemicals: {jsonData.ChemicalComponents.length}</p>
-                  </div>
+                ) : (
+                  <p>Please load a JSON file first to verify release location.</p>
                 )}
               </div>
             )}
@@ -386,6 +430,13 @@ const LeafletMap = () => {
             {searchStatus && <span className="status-message">{searchStatus}</span>}
           </form>
         </div>
+        
+        {/* Guidance Banner */}
+        {showGuidanceBanner && (
+          <div className="guidance-banner">
+            Drag and drop the release point to the correct location. Click "Done" when complete.
+          </div>
+        )}
         
         {/* Map container */}
         <div className="map-area" ref={mapContainerRef} />
