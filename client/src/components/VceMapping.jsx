@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+import FileImport from './FileImport';
+
 // Default leaflet marker icon fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -41,6 +43,13 @@ const LeafletMap = () => {
   const [currentReleaseLocation, setCurrentReleaseLocation] = useState(null);
   const [showGuidanceBanner, setShowGuidanceBanner] = useState(false);
   const [locationUpdated, setLocationUpdated] = useState(false);
+
+  // State to manage visibility of the FileImport component
+  const [showFileImport, setShowFileImport] = useState(false);
+
+  const toggleFileImport = () => {
+    setShowFileImport(!showFileImport);
+  };
 
   // Initialize the map
   useEffect(() => {
@@ -394,6 +403,15 @@ const LeafletMap = () => {
               >
                 Satellite
               </button>
+
+              {/* File Import Button */}
+              <button 
+                onClick={toggleFileImport}
+                className="file-import-button"
+              >
+                Import File
+              </button>
+
             </div>
           </div>
           
@@ -430,6 +448,9 @@ const LeafletMap = () => {
             {searchStatus && <span className="status-message">{searchStatus}</span>}
           </form>
         </div>
+
+        {/* Display FileImport component if visible */}
+        {showFileImport && <FileImport />}
         
         {/* Guidance Banner */}
         {showGuidanceBanner && (
