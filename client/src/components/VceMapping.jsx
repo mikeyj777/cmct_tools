@@ -50,6 +50,7 @@ const LeafletMap = () => {
   const markerRef = useRef(null);
   const releaseMarkerRef = useRef(null);
   const circleRef = useRef(null);
+  const flammableExtentCircleRef = useRef(null);
   const buildingMarkersRef = useRef({});
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,6 +79,28 @@ const LeafletMap = () => {
 
   // State to manage visibility of the FileImport component
   const [showFileImport, setShowFileImport] = useState(false);
+
+  // Flammable extent state
+  const [flammableExtentData, setFlammableExtentData] = useState(null);
+  const [showFlammableExtent, setShowFlammableExtent] = useState(false);
+  const [isFlammableExtentLoading, setIsFlammableExtentLoading] = useState(false);
+  const [flammableExtentError, setFlammableExtentError] = useState('');
+  const [showModelConfirmation, setShowModelConfirmation] = useState(false);
+
+  // Get API URL based on environment
+  const getApiUrl = () => {
+    const protocol = process.env.REACT_APP_API_PROTOCOL || 'http';
+    const port = process.env.REACT_APP_API_PORT || '8081';
+    let host;
+    
+    if (process.env.REACT_APP_ENVIRONMENT === 'PROD') {
+      host = process.env.REACT_APP_API_HOST_PROD || 'wssafer02';
+    } else {
+      host = process.env.REACT_APP_API_HOST_DEV || 'localhost';
+    }
+    
+    return `${protocol}://${host}:${port}`;
+  };
 
   const toggleFileImport = () => {
     setShowFileImport(!showFileImport);
@@ -225,12 +248,83 @@ const LeafletMap = () => {
     }
   }, [activeStep, currentBuildingIndex, isInitialPlacement, buildings, currentReleaseLocation, mapLoaded]);
   
+  // Effect to manage visibility of markers based on active step
+  useEffect(() => {
+    if (mapLoaded && releaseMarkerRef.current) {
+      if (activeStep === 3 && showFlammableExtent) {
+        // Hide all markers when showing flammable extent
+        Object.values(buildingMarkersRef.current).forEach(marker => {
+          mapRef.current.removeLayer(marker);
+        });
+        
+        if (markerRef.current) {
+          mapRef.current.removeLayer(markerRef.current);
+        }
+      } else {
+        // Restore markers when not showing flammable extent
+        Object.values(buildingMarkersRef.current).forEach(marker => {
+          if (!mapRef.current.hasLayer(marker)) {
+            marker.addTo(mapRef.current);
+          }
+        });
+        
+        if (markerRef.current && !mapRef.current.hasLayer(markerRef.current)) {
+          markerRef.current.addTo(mapRef.current);
+        }
+      }
+    }
+  }, [activeStep, showFlammableExtent, mapLoaded]);
+  
+  // Effect to display flammable extent circle when data is available
+  useEffect(() => {
+    if (mapLoaded && flammableExtentData && showFlammableExtent && currentReleaseLocation) {
+      // Remove any existing flammable extent circle
+      if (flammableExtentCircleRef.current) {
+        mapRef.current.removeLayer(flammableExtentCircleRef.current);
+        flammableExtentCircleRef.current = null;
+      }
+      
+      // Create a new flammable extent circle
+      const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
+      
+      // Create a pattern for the flammable extent circle
+      const stripes = new L.StripePattern({
+        color: 'red',
+        weight: 2,
+        spaceWeight: 3,
+        spaceColor: 'transparent',
+        angle: 45
+      });
+      stripes.addTo(mapRef.current);
+      
+      flammableExtentCircleRef.current = L.circle(releasePoint, {
+        radius: flammableExtentData.maximum_downwind_extent,
+        color: 'red',
+        weight: 2,
+        fillPattern: stripes,
+        fillOpacity: 0.5
+      }).addTo(mapRef.current);
+      
+      // Zoom map to show the entire flammable extent
+      mapRef.current.fitBounds(flammableExtentCircleRef.current.getBounds());
+    } else if (flammableExtentCircleRef.current && !showFlammableExtent) {
+      // Remove the flammable extent circle when not showing it
+      mapRef.current.removeLayer(flammableExtentCircleRef.current);
+      flammableExtentCircleRef.current = null;
+    }
+  }, [flammableExtentData, showFlammableExtent, currentReleaseLocation, mapLoaded]);
+  
   // Effect to handle confirmation popup escape key
   useEffect(() => {
-    if (showConfirmationPopup) {
+    if (showConfirmationPopup || showModelConfirmation) {
       const handleEscape = (e) => {
         if (e.key === 'Escape') {
-          cancelBuildingPlacement();
+          if (showConfirmationPopup) {
+            cancelBuildingPlacement();
+          }
+          if (showModelConfirmation) {
+            setShowModelConfirmation(false);
+          }
         }
       };
       
@@ -239,7 +333,14 @@ const LeafletMap = () => {
         document.removeEventListener('keydown', handleEscape);
       };
     }
-  }, [showConfirmationPopup]);
+  }, [showConfirmationPopup, showModelConfirmation]);
+  
+  // Effect to trigger model confirmation popup when step 4 is active
+  useEffect(() => {
+    if (activeStep === 3 && !flammableExtentData && !isFlammableExtentLoading && !showModelConfirmation) {
+      setShowModelConfirmation(true);
+    }
+  }, [activeStep, flammableExtentData, isFlammableExtentLoading, showModelConfirmation]);
 
   // Function to toggle between map layers
   const toggleMapLayer = (layerType) => {
@@ -373,6 +474,11 @@ const LeafletMap = () => {
   // Function to toggle step visibility
   const toggleStep = (index) => {
     setActiveStep(activeStep === index ? -1 : index);
+    
+    // Hide flammable extent when not on step 4
+    if (index !== 3) {
+      setShowFlammableExtent(false);
+    }
   };
   
   // Function to update release location in the JSON data
@@ -515,6 +621,44 @@ const LeafletMap = () => {
           setCurrentBuildingIndex(buildingIndex);
         });
       }
+    }
+  };
+
+  // Function to fetch flammable extent data
+  const fetchFlammableExtent = async () => {
+    if (!jsonData) return;
+    
+    setIsFlammableExtentLoading(true);
+    setFlammableExtentError('');
+    setShowModelConfirmation(false);
+    
+    try {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/vce_get_flammable_envelope`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Server returned status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      setFlammableExtentData(data.flam_env_data);
+      setShowFlammableExtent(true);
+    } catch (error) {
+      console.error('Error fetching flammable extent:', error);
+      setFlammableExtentError(`Failed to fetch flammable extent: ${error.message}`);
+    } finally {
+      setIsFlammableExtentLoading(false);
     }
   };
 
@@ -684,9 +828,63 @@ const LeafletMap = () => {
               </div>
             )}
           </div>
+          
+          {/* Step 4 - Get Flammable Extent */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 3 ? 'active' : ''}`} 
+              onClick={() => toggleStep(3)}
+            >
+              <span>4. Get Flammable Extent</span>
+              <span>{activeStep === 3 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 3 && (
+              <div className="step-content">
+                {jsonData ? (
+                  <div className="flammable-extent-info">
+                    {flammableExtentData ? (
+                      <div className="extent-results">
+                        <p>Flammable envelope calculated successfully.</p>
+                        <p>Maximum downwind extent: {flammableExtentData.maximum_downwind_extent} meters</p>
+                        <p>The red hatched circle on the map represents the maximum extent of the flammable envelope.</p>
+                      </div>
+                    ) : isFlammableExtentLoading ? (
+                      <div className="loading-indicator">
+                        <p>Calculating flammable envelope...</p>
+                        <p>This process may take up to two minutes to complete.</p>
+                        <div className="spinner"></div>
+                      </div>
+                    ) : flammableExtentError ? (
+                      <div className="error-message">
+                        <p>{flammableExtentError}</p>
+                        <button 
+                          className="retry-button" 
+                          onClick={() => setShowModelConfirmation(true)}
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="start-calculation">
+                        <p>Click the button below to calculate the flammable envelope for this release scenario.</p>
+                        <button 
+                          className="calculate-button" 
+                          onClick={() => setShowModelConfirmation(true)}
+                        >
+                          Calculate Flammable Envelope
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p>Please load a JSON file first to calculate flammable envelope.</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      
+
       {/* Main Content */}
       <div className="main-content">
         {/* Controls */}
@@ -760,7 +958,7 @@ const LeafletMap = () => {
         {showBuildingGuidance && isInitialPlacement && (
           <div className="guidance-banner building">
             The circle shows the distance to building {buildings[currentBuildingIndex]?.BuildingNumber || `#${currentBuildingIndex + 1}`}. 
-            Click anywhere to place the building marker at its approximate location.
+            Click anywhere on the circle to place the building marker at its approximate location.
           </div>
         )}
         
@@ -771,6 +969,13 @@ const LeafletMap = () => {
           </div>
         )}
         
+        {/* Flammable Extent Loading Banner */}
+        {isFlammableExtentLoading && (
+          <div className="guidance-banner">
+            Calculating flammable envelope. This may take up to two minutes to complete.
+          </div>
+        )}
+
         {/* Building Confirmation Popup */}
         {showConfirmationPopup && (
           <div className="confirmation-popup">
@@ -791,8 +996,29 @@ const LeafletMap = () => {
           </div>
         )}
         
+        {/* Flammable Extent Legend */}
+        {flammableExtentCircleRef.current && showFlammableExtent && (
+          <div className="circle-legend flammable-legend">
+            Flammable Extent: {flammableExtentData?.maximum_downwind_extent}m
+          </div>
+        )}
+        
         {/* Map container */}
         <div className="map-area" ref={mapContainerRef} />
+        
+        {/* Model Confirmation Popup */}
+        {showModelConfirmation && (
+          <div className="confirmation-popup">
+            <div className="confirmation-content">
+              <p>This will start the flammable envelope calculation model. This process may take up to two minutes to complete.</p>
+              <p>Do you want to proceed?</p>
+              <div className="confirmation-buttons">
+                <button className="cancel-button" onClick={() => setShowModelConfirmation(false)}>Cancel</button>
+                <button className="confirm-button" onClick={fetchFlammableExtent}>Proceed</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
