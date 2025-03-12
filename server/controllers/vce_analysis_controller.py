@@ -14,6 +14,7 @@ from pypws.entities import FlammableParameters, FlammableOutputConfig, Transect,
 from pypws.enums import ContourType, ResultCode
 
 from py_lopa.model_interface import Model_Interface
+from py_lopa.classes.vce import VCE
 
 import logging
 
@@ -49,4 +50,13 @@ async def flammable_envelope():
         logging.debug(f'exception caused from radiation_analysis endpoint.  error info: {e}')
         return jsonify({'error': 'Internal Server Error'}), 500
 
+def flammable_mass():
+    data = request.get_json()
+    vce = VCE()
+    try:
+        resp = vce.get_flammable_mass(data)
+        return jsonify({'flammable_mass_g':resp['flammable_mass_g']}), 200
+    except Exception as e:
+        logging.debug(f'exception caused from flammable mass endpoint.  error info: {e}')
+        return jsonify({'error': 'Internal Server Error'}), 500
 
