@@ -244,7 +244,9 @@ const CongestedVolumeIdentifier = ({
       ...formData,
       flammableMassG: null  // Initialize flammable mass as null
     };
-    
+
+    console.log("xxx new volume created: ", newVolume);
+
     if (activeVolumeId) {
       // Update existing volume
       const updatedVolumes = congestedVolumes.map(vol => 

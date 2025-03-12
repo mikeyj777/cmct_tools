@@ -30,6 +30,6 @@ async def vce_flammable_envelope_route():
     return await flammable_envelope()
 
 @app.route('/api/vce_get_flammable_mass', methods=['POST'])
-async def vce_flammable_mass_route():
-    logging.debug("flammable envelope.")
-    return await flammable_mass()
+def vce_flammable_mass_route():
+    logging.debug("flammable mass.")
+    return flammable_mass()

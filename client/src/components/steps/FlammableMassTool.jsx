@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { calculateVolumeExtents } from '../../utils/geospatial';
+import { getApiUrl } from '../../utils/mapUtils';
+
+const apiUrl = getApiUrl();
 
 const FlammableMassTool = ({
   jsonData,
@@ -12,6 +16,14 @@ const FlammableMassTool = ({
   const [calculatedVolumes, setCalculatedVolumes] = useState([]);
   const [isCalculating, setIsCalculating] = useState(false);
   const [currentCalculationIndex, setCurrentCalculationIndex] = useState(null);
+
+  useEffect(() => {
+    if (!congestedVolumes) return
+    if (congestedVolumes.length === 0) return
+
+    console.log("xxx congested volumes in flammable mass tool: ", congestedVolumes)
+
+  }, [congestedVolumes])
 
   // Validate prerequisites before calculation
   const canCalculateMass = () => {
@@ -65,16 +77,18 @@ const FlammableMassTool = ({
           }];
         }
 
+        const dims = calculateVolumeExtents(volume, currentReleaseLocation);
+
         // Calculate volume extents based on release location
-        const xMin = volume.position.lng - releaseLng;
-        const xMax = xMin + volume.length;
-        const yMin = volume.position.lat - releaseLat;
-        const yMax = yMin + volume.width;
-        const zMin = 0; // Ground level
-        const zMax = volume.height + (volume.elevationAboveGrade || 0);
+        const xMin = dims['xMin'];
+        const xMax = dims['xMax'];
+        const yMin = dims['yMin'];
+        const yMax = dims['yMax'];
+        const zMin = dims['zMin'];
+        const zMax = dims['zMax'];
 
         try {
-          const response = await fetch('/api/vce_get_flammable_mass', {
+          const response = await fetch(`${apiUrl}/api/vce_get_flammable_mass`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
