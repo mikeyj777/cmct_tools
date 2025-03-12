@@ -6,7 +6,7 @@
  * @param {number} lon2 - Longitude of second point in decimal degrees
  * @returns {number} Distance in meters
  */
-const haversineDistance = (lat1, lon1, lat2, lon2) => {
+export const haversineDistance = (lat1, lon1, lat2, lon2) => {
   // Radius of the Earth in meters
   const R = 6371000; 
 

@@ -350,7 +350,10 @@ const VceMappingMain = () => {
                   updateGuidanceBanner={updateGuidanceBanner}
                   getOccupancyText={getOccupancyText}
                   getBuildingIcon={getBuildingIcon}
-                  onBuildingsUpdate={setBuildings}
+                  onBuildingsUpdate={ (bldgs) => {
+                    setBuildings(bldgs);
+                    console.log("after setting buildings, here are the buildings: ", buildings);
+                  }}
                 />
               </div>
             )}
