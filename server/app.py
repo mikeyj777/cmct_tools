@@ -1,7 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-from controllers.pypws_controller import radiation_analysis
+from controllers.rad_analysis_controller import radiation_analysis
+from controllers.vce_analysis_controller import flammable_envelope
 
 import logging
 
@@ -22,3 +23,8 @@ CORS(app, resources={
 async def rad_route():
     logging.debug("here on the back end.")
     return await radiation_analysis()
+
+@app.route('/api/vce_get_flammable_envelope', methods=['POST'])
+async def vce_flammable_envelope_route():
+    logging.debug("flammable envelope.")
+    return await flammable_envelope()
