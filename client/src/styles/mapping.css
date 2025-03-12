@@ -109,7 +109,8 @@
 }
 
 .guidance-banner {
-  padding: 1rem;
+  padding: 10px;
+  margin-bottom: 10px;
   background-color: #fef3c7;
   border-top: 1px solid #f59e0b;
   border-bottom: 1px solid #f59e0b;
@@ -273,6 +274,117 @@
 
 .map-area {
   flex-grow: 1;
+}
+
+/* For the building items in the expanded step */
+.building-item {
+  padding: 8px;
+  margin: 4px 0;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.building-item:hover {
+  background-color: #e0e0e0;
+}
+
+.building-item.active {
+  background-color: #d0e8f2;
+  border-left: 4px solid #4a90e2;
+}
+
+/* For the occupancy level indicators */
+.occupancy-indicator {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.occupancy-low {
+  background-color: #c8e6c9;
+  color: #388e3c;
+}
+
+.occupancy-medium {
+  background-color: #fff9c4;
+  color: #fbc02d;
+}
+
+.occupancy-high {
+  background-color: #ffcdd2;
+  color: #d32f2f;
+}
+
+/* For the confirmation status */
+.status-indicator {
+  margin-left: 8px;
+}
+
+/* For the guidance banner when identifying buildings */
+.guidance-banner.building {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+}
+/* For the radial circle on the map */
+.circle-legend {
+  padding: 5px 10px;
+  background-color: rgba(255,255,255,0.8);
+  border-radius: 4px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 1000;
+  font-size: 12px;
+}
+
+/* For the building confirmation popup */
+.confirmation-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+}
+
+.confirmation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.confirmation-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.confirm-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 /* Media query for responsive layout */

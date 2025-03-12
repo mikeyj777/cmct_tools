@@ -23,11 +23,34 @@ const releaseIcon = L.icon({
   shadowSize: [41, 41]
 });
 
+// Create functions to get marker icons based on occupancy level
+const getBuildingIcon = (occupancyLevel) => {
+  // Define icon URLs for different occupancy levels
+  const iconUrls = {
+    0: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', // Low - green
+    1: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png', // Medium - yellow
+    2: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', // High - red
+    default: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png' // Default - blue
+  };
+
+  return L.icon({
+    iconUrl: iconUrls[occupancyLevel] || iconUrls.default,
+    iconRetinaUrl: iconUrls[occupancyLevel] || iconUrls.default,
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+};
+
 const LeafletMap = () => {
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
   const markerRef = useRef(null);
   const releaseMarkerRef = useRef(null);
+  const circleRef = useRef(null);
+  const buildingMarkersRef = useRef({});
   
   const [searchQuery, setSearchQuery] = useState('');
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -43,6 +66,15 @@ const LeafletMap = () => {
   const [currentReleaseLocation, setCurrentReleaseLocation] = useState(null);
   const [showGuidanceBanner, setShowGuidanceBanner] = useState(false);
   const [locationUpdated, setLocationUpdated] = useState(false);
+
+  // Building identification state
+  const [buildings, setBuildings] = useState([]);
+  const [currentBuildingIndex, setCurrentBuildingIndex] = useState(0);
+  const [isInitialPlacement, setIsInitialPlacement] = useState(true);
+  const [showBuildingGuidance, setShowBuildingGuidance] = useState(false);
+  const [activeBuildingId, setActiveBuildingId] = useState(null);
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
+  const [tempBuildingPosition, setTempBuildingPosition] = useState(null);
 
   // State to manage visibility of the FileImport component
   const [showFileImport, setShowFileImport] = useState(false);
@@ -124,12 +156,22 @@ const LeafletMap = () => {
           lng: ApproxLongitude.toFixed(6)
         });
       }
+
+      // If BuildingInfo is present, set the buildings state
+      if (jsonData.BuildingInfo && jsonData.BuildingInfo.length > 0) {
+        const buildingsWithLocation = jsonData.BuildingInfo.map(building => ({
+          ...building,
+          location: null, // Will be set when user places the building
+          confirmed: false
+        }));
+        setBuildings(buildingsWithLocation);
+      }
     }
   }, [mapLoaded, jsonData]);
 
   // Update marker draggability based on active step
   useEffect(() => {
-    if (releaseMarkerRef.current) {
+    if (releaseMarkerRef.current && releaseMarkerRef.current.dragging) {
       if (activeStep === 1) {
         releaseMarkerRef.current.dragging.enable();
         setShowGuidanceBanner(true);
@@ -139,6 +181,65 @@ const LeafletMap = () => {
       }
     }
   }, [activeStep]);
+
+  // Effect to handle building identification process
+  useEffect(() => {
+    if (activeStep === 2 && mapLoaded && buildings.length > 0 && currentReleaseLocation) {
+      setShowBuildingGuidance(true);
+      
+      // If we're in initial placement mode and have a current building
+      if (isInitialPlacement && buildings[currentBuildingIndex]) {
+        const currentBuilding = buildings[currentBuildingIndex];
+        setActiveBuildingId(currentBuilding.NearbyBuildingID);
+        
+        // Clear any existing circle
+        if (circleRef.current) {
+          mapRef.current.removeLayer(circleRef.current);
+          circleRef.current = null;
+        }
+        
+        // Draw a circle representing the distance from release point
+        const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
+        circleRef.current = L.circle(releasePoint, {
+          radius: currentBuilding.DistanceFromRelease,
+          color: '#3388ff',
+          weight: 3,
+          fillOpacity: 0.05
+        }).addTo(mapRef.current);
+        
+        // Add click handler to map for building placement
+        mapRef.current.once('click', function(e) {
+          const position = e.latlng;
+          setTempBuildingPosition(position);
+          setShowConfirmationPopup(true);
+        });
+      }
+    } else {
+      setShowBuildingGuidance(false);
+      
+      // Remove circle if step is not active
+      if (circleRef.current) {
+        mapRef.current.removeLayer(circleRef.current);
+        circleRef.current = null;
+      }
+    }
+  }, [activeStep, currentBuildingIndex, isInitialPlacement, buildings, currentReleaseLocation, mapLoaded]);
+  
+  // Effect to handle confirmation popup escape key
+  useEffect(() => {
+    if (showConfirmationPopup) {
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          cancelBuildingPlacement();
+        }
+      };
+      
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [showConfirmationPopup]);
 
   // Function to toggle between map layers
   const toggleMapLayer = (layerType) => {
@@ -293,6 +394,150 @@ const LeafletMap = () => {
     }
   };
 
+  // Function to confirm building placement
+  const confirmBuildingPlacement = () => {
+    if (!tempBuildingPosition) return;
+    
+    // Update the building data with the new location
+    const updatedBuildings = [...buildings];
+    const currentBuilding = {...updatedBuildings[currentBuildingIndex]};
+    
+    currentBuilding.location = {
+      lat: tempBuildingPosition.lat,
+      lng: tempBuildingPosition.lng
+    };
+    currentBuilding.confirmed = true;
+    
+    updatedBuildings[currentBuildingIndex] = currentBuilding;
+    setBuildings(updatedBuildings);
+    
+    // Add or update the building marker on the map
+    if (buildingMarkersRef.current[currentBuilding.NearbyBuildingID]) {
+      buildingMarkersRef.current[currentBuilding.NearbyBuildingID].setLatLng([
+        tempBuildingPosition.lat,
+        tempBuildingPosition.lng
+      ]);
+    } else {
+      // Get the appropriate icon based on occupancy level
+      const buildingMarker = L.marker([tempBuildingPosition.lat, tempBuildingPosition.lng], {
+        icon: getBuildingIcon(currentBuilding.OccupancyLevel),
+        draggable: true
+      })
+        .addTo(mapRef.current)
+        .bindPopup(`${currentBuilding.BuildingNumber || 'Building'} - ${getOccupancyText(currentBuilding.OccupancyLevel)}`);
+        
+      buildingMarker.on('dragend', function(event) {
+        const marker = event.target;
+        const position = marker.getLatLng();
+        
+        // Update the building location in the state
+        const updatedBuildings = [...buildings];
+        const buildingIndex = updatedBuildings.findIndex(b => b.NearbyBuildingID === currentBuilding.NearbyBuildingID);
+        
+        if (buildingIndex !== -1) {
+          updatedBuildings[buildingIndex] = {
+            ...updatedBuildings[buildingIndex],
+            location: {
+              lat: position.lat,
+              lng: position.lng
+            }
+          };
+          setBuildings(updatedBuildings);
+        }
+      });
+      
+      buildingMarkersRef.current[currentBuilding.NearbyBuildingID] = buildingMarker;
+    }
+    
+    // Close confirmation popup
+    setShowConfirmationPopup(false);
+    setTempBuildingPosition(null);
+    
+    // If in initial placement mode, move to the next building
+    if (isInitialPlacement) {
+      if (currentBuildingIndex < buildings.length - 1) {
+        setCurrentBuildingIndex(currentBuildingIndex + 1);
+      } else {
+        // All buildings placed, exit initial placement mode
+        setIsInitialPlacement(false);
+        if (circleRef.current) {
+          mapRef.current.removeLayer(circleRef.current);
+          circleRef.current = null;
+        }
+      }
+    }
+  };
+
+  // Function to cancel building placement
+  const cancelBuildingPlacement = () => {
+    setShowConfirmationPopup(false);
+    setTempBuildingPosition(null);
+  };
+
+  // Function to select a building for editing
+  const selectBuilding = (buildingId) => {
+    setIsInitialPlacement(false);
+    setActiveBuildingId(buildingId);
+    
+    // Clean up any existing circle
+    if (circleRef.current) {
+      mapRef.current.removeLayer(circleRef.current);
+      circleRef.current = null;
+    }
+    
+    // Find the building in the state
+    const buildingIndex = buildings.findIndex(b => b.NearbyBuildingID === buildingId);
+    
+    if (buildingIndex !== -1) {
+      const building = buildings[buildingIndex];
+      
+      // If the building has a location, center the map on it
+      if (building.location) {
+        mapRef.current.setView([building.location.lat, building.location.lng], 15);
+      } else if (releaseMarkerRef.current) {
+        // If not, center on the release point and show the distance circle
+        const releasePoint = releaseMarkerRef.current.getLatLng();
+        mapRef.current.setView([releasePoint.lat, releasePoint.lng], 15);
+        
+        // Show the distance circle
+        circleRef.current = L.circle([releasePoint.lat, releasePoint.lng], {
+          radius: building.DistanceFromRelease,
+          color: '#3388ff',
+          weight: 3,
+          fillOpacity: 0.05
+        }).addTo(mapRef.current);
+        
+        // Add one-time click handler for placement
+        mapRef.current.once('click', function(e) {
+          const position = e.latlng;
+          setTempBuildingPosition(position);
+          setShowConfirmationPopup(true);
+          setCurrentBuildingIndex(buildingIndex);
+        });
+      }
+    }
+  };
+
+  // Helper function to get occupancy level text
+  const getOccupancyText = (level) => {
+    switch(level) {
+      case 0: return 'Low Occupancy';
+      case 1: return 'Medium Occupancy';
+      case 2: return 'High Occupancy';
+      default: return 'Unknown Occupancy';
+    }
+  };
+
+  // Helper function to get occupancy level class
+  const getOccupancyClass = (level) => {
+    switch(level) {
+      case 0: return 'occupancy-low';
+      case 1: return 'occupancy-medium';
+      case 2: return 'occupancy-high';
+      default: return '';
+    }
+  };
+
   return (
     <div className="map-container">
       {/* Left Panel */}
@@ -380,6 +625,65 @@ const LeafletMap = () => {
               </div>
             )}
           </div>
+
+          {/* Step 3 - Identify Building Locations */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 2 ? 'active' : ''}`} 
+              onClick={() => toggleStep(2)}
+            >
+              <span>3. Identify Building Locations</span>
+              <span>{activeStep === 2 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 2 && (
+              <div className="step-content">
+                {jsonData && buildings.length > 0 ? (
+                  <>
+                    {isInitialPlacement && (
+                      <div className="building-info">
+                        <p>Locating building {currentBuildingIndex + 1} of {buildings.length}:</p>
+                        <p>
+                          <strong>
+                            {buildings[currentBuildingIndex].BuildingNumber || 'Building'} - 
+                            <span className={`occupancy-indicator ${getOccupancyClass(buildings[currentBuildingIndex].OccupancyLevel)}`}>
+                              {getOccupancyText(buildings[currentBuildingIndex].OccupancyLevel)}
+                            </span>
+                          </strong>
+                        </p>
+                        <p>Distance from release: {buildings[currentBuildingIndex].DistanceFromRelease}m</p>
+                      </div>
+                    )}
+                    
+                    <div className="buildings-list">
+                      {buildings.map((building, index) => (
+                        <div 
+                          key={building.NearbyBuildingID}
+                          className={`building-item ${activeBuildingId === building.NearbyBuildingID ? 'active' : ''}`}
+                          onClick={() => selectBuilding(building.NearbyBuildingID)}
+                        >
+                          <div>
+                            <span>{building.BuildingNumber || `Building ${index + 1}`}</span>
+                            <span className={`occupancy-indicator ${getOccupancyClass(building.OccupancyLevel)}`}>
+                              {getOccupancyText(building.OccupancyLevel)}
+                            </span>
+                          </div>
+                          <div className="status-indicator">
+                            {building.confirmed && (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p>Please load a JSON file first to identify building locations.</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
@@ -452,10 +756,38 @@ const LeafletMap = () => {
         {/* Display FileImport component if visible */}
         {showFileImport && <FileImport />}
         
-        {/* Guidance Banner */}
+        {/* Building Guidance Banner */}
+        {showBuildingGuidance && isInitialPlacement && (
+          <div className="guidance-banner building">
+            The circle shows the distance to building {buildings[currentBuildingIndex]?.BuildingNumber || `#${currentBuildingIndex + 1}`}. 
+            Click anywhere on the circle to place the building marker at its approximate location.
+          </div>
+        )}
+        
+        {/* Regular Guidance Banner */}
         {showGuidanceBanner && (
           <div className="guidance-banner">
             Drag and drop the release point to the correct location. Click "Done" when complete.
+          </div>
+        )}
+        
+        {/* Building Confirmation Popup */}
+        {showConfirmationPopup && (
+          <div className="confirmation-popup">
+            <div className="confirmation-content">
+              <p>Confirm building location for {buildings[currentBuildingIndex]?.BuildingNumber || `Building #${currentBuildingIndex + 1}`}?</p>
+              <div className="confirmation-buttons">
+                <button className="cancel-button" onClick={cancelBuildingPlacement}>Cancel</button>
+                <button className="confirm-button" onClick={confirmBuildingPlacement}>Confirm</button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Distance Circle Legend */}
+        {circleRef.current && (
+          <div className="circle-legend">
+            Distance: {buildings[currentBuildingIndex]?.DistanceFromRelease}m
           </div>
         )}
         
