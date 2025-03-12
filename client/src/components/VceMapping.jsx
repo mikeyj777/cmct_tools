@@ -760,7 +760,7 @@ const LeafletMap = () => {
         {showBuildingGuidance && isInitialPlacement && (
           <div className="guidance-banner building">
             The circle shows the distance to building {buildings[currentBuildingIndex]?.BuildingNumber || `#${currentBuildingIndex + 1}`}. 
-            Click anywhere on the circle to place the building marker at its approximate location.
+            Click anywhere to place the building marker at its approximate location.
           </div>
         )}
         
