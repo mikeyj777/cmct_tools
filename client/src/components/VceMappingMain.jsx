@@ -8,6 +8,7 @@ import ReleaseLocationEditor from './steps/ReleaseLocationEditor';
 import BuildingPlacementTool from './steps/BuildingPlacementTool';
 import FlammableExtentTool from './steps/FlammableExtentTool';
 import CongestedVolumeIdentifier from './steps/CongestedVolumeIdentifier';
+import FlammableMassTool from './steps/FlammableMassTool';
 
 // Import the FileImport component
 import FileImport from './FileImport';
@@ -405,6 +406,33 @@ const VceMappingMain = () => {
                     //   CongestedVolumes: volumes
                     // };
                     // setJsonData(updatedJsonData);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Step 6 - Get Flammable Masses */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 5 ? 'active' : ''}`} 
+              onClick={() => toggleStep(5)}
+            >
+              <span>6. Get Flammable Masses</span>
+              <span>{activeStep === 5 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 5 && (
+              <div className="step-content">
+                <FlammableMassTool 
+                  jsonData={jsonData}
+                  flammableExtentData={flammableExtentData}
+                  currentReleaseLocation={currentReleaseLocation}
+                  congestedVolumes={congestedVolumes}
+                  updateGuidanceBanner={updateGuidanceBanner}
+                  onCongestedVolumesUpdate={setCongestedVolumes}
+                  onFlammableMassCalculated={(massData) => {
+                    // Optional: Additional processing if needed
+                    setCongestedVolumes(massData);
                   }}
                 />
               </div>
