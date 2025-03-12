@@ -101,7 +101,7 @@ const ReleaseLocationEditor = ({
       <button 
         className="done-button" 
         onClick={updateReleaseLocation}
-        disabled={!locationUpdated}
+        disabled={false}
       >
         Done
       </button>
