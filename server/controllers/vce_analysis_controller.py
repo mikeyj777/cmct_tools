@@ -52,9 +52,16 @@ async def flammable_envelope():
 
 def flammable_mass():
     data = request.get_json()
+    x_min = data['xMin']
+    x_max = data['xMax']
+    y_min = data['yMin']
+    y_max = data['yMax']
+    z_min = data['zMin']
+    z_max = data['zMax']
+    flammable_envelope_list_of_dicts = data['flammable_envelope_list_of_dicts']
     vce = VCE()
     try:
-        resp = vce.get_flammable_mass(data)
+        resp = vce.get_flammable_mass(x_min, x_max, y_min, y_max, z_min, z_max, flammable_envelope_list_of_dicts)
         return jsonify({'flammable_mass_g':resp['flammable_mass_g']}), 200
     except Exception as e:
         logging.debug(f'exception caused from flammable mass endpoint.  error info: {e}')

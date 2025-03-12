@@ -10,10 +10,16 @@ const CongestedVolumeForm = ({
   onSave, 
   onCancel, 
   isEditing = false,
-  onDelete
+  onDelete 
 }) => {
   const [congestionLevel, setCongestionLevel] = useState(initialData?.congestionLevel || 'low');
   const [isIndoors, setIsIndoors] = useState(initialData?.isIndoors || false);
+  
+  // New state for dimensions and elevation
+  const [width, setWidth] = useState(initialData?.width || '');
+  const [length, setLength] = useState(initialData?.length || '');
+  const [height, setHeight] = useState(initialData?.height || '');
+  const [elevationAboveGrade, setElevationAboveGrade] = useState(initialData?.elevationAboveGrade || '');
 
   if (!isOpen) return null;
 
@@ -22,6 +28,7 @@ const CongestedVolumeForm = ({
       <div className="modal-content congested-volume-form">
         <h3>{isEditing ? 'Edit' : 'New'} Congested Volume</h3>
         
+        {/* Existing congestion level section */}
         <div className="form-group">
           <label className="form-label">Congestion Level:</label>
           <div className="radio-group">
@@ -69,10 +76,65 @@ const CongestedVolumeForm = ({
           </label>
         </div>
         
+        {/* Dimensions input */}
+        <div className="form-group">
+          <label className="form-label">Volume Dimensions (meters):</label>
+          <div className="dimension-inputs">
+            <label className="dimension-input-label">
+              <input 
+                type="number" 
+                placeholder="Width" 
+                value={width}
+                onChange={(e) => setWidth(e.target.value)}
+                step="0.1"
+                min="0"
+              />
+              <span>Width</span>
+            </label>
+            <label className="dimension-input-label">
+              <input 
+                type="number" 
+                placeholder="Length" 
+                value={length}
+                onChange={(e) => setLength(e.target.value)}
+                step="0.1"
+                min="0"
+              />
+              <span>Length</span>
+            </label>
+            <label className="dimension-input-label">
+              <input 
+                type="number" 
+                placeholder="Height" 
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                step="0.1"
+                min="0"
+              />
+              <span>Height</span>
+            </label>
+          </div>
+        </div>
+        
+        {/* Elevation input */}
+        <div className="form-group">
+          <label className="form-label">Elevation Above Grade (meters):</label>
+          <label className="dimension-input-label">
+            <input 
+              type="number" 
+              value={elevationAboveGrade}
+              onChange={(e) => setElevationAboveGrade(e.target.value)}
+              placeholder="Elevation"
+              step="0.1"
+            />
+            <span>Elevation</span>
+          </label>
+        </div>
+        
         {isEditing && (
           <button 
             className="delete-button" 
-            onClick={() => onDelete()}
+            onClick={() => onDelete()} 
           >
             Delete
           </button>
@@ -82,7 +144,14 @@ const CongestedVolumeForm = ({
           <button className="cancel-button" onClick={onCancel}>Cancel</button>
           <button 
             className="ok-button" 
-            onClick={() => onSave({ congestionLevel, isIndoors })}
+            onClick={() => onSave({ 
+              congestionLevel, 
+              isIndoors,
+              width: parseFloat(width),
+              length: parseFloat(length),
+              height: parseFloat(height),
+              elevationAboveGrade: parseFloat(elevationAboveGrade)
+            })}
           >
             OK
           </button>
@@ -163,7 +232,7 @@ const CongestedVolumeIdentifier = ({
   
   // Function to save congested volume data
   const saveVolumeData = (formData) => {
-    if (!clickPosition) return;
+  if (!clickPosition) return;
     
     const newVolume = {
       id: activeVolumeId || `volume-${Date.now()}`,
@@ -172,7 +241,8 @@ const CongestedVolumeIdentifier = ({
         lng: clickPosition.lng
       },
       distance: currentDistance,
-      ...formData
+      ...formData,
+      flammableMassG: null  // Initialize flammable mass as null
     };
     
     if (activeVolumeId) {
@@ -242,24 +312,31 @@ const CongestedVolumeIdentifier = ({
       {congestedVolumes.length > 0 && (
         <div className="volume-list">
           <h4>Congested Volumes:</h4>
-          {congestedVolumes.map(volume => (
-            <div 
-              key={volume.id} 
-              className="volume-item"
-              onClick={() => editVolume(volume.id)}
-            >
-              <div className="volume-info">
-                <span className="volume-id">Volume {volume.id.split('-')[1]}</span>
-                <span className={`congestion-level ${volume.congestionLevel}`}>
-                  {volume.congestionLevel.charAt(0).toUpperCase() + volume.congestionLevel.slice(1)} Congestion
-                </span>
-                {volume.isIndoors && <span className="indoors-tag">Indoors</span>}
+          {congestedVolumes.map(volume => {
+            // Calculate total volume in cubic meters
+            const volumeM3 = volume.width && volume.length && volume.height 
+              ? (volume.width * volume.length * volume.height).toFixed(2) 
+              : 'N/A';
+
+            return (
+              <div 
+                key={volume.id} 
+                className="volume-item"
+                onClick={() => editVolume(volume.id)}
+              >
+                <div className="volume-info">
+                  <span className="volume-label">Volume {volumeM3} m³</span>
+                  <span className={`congestion-level ${volume.congestionLevel}`}>
+                    {volume.congestionLevel.charAt(0).toUpperCase() + volume.congestionLevel.slice(1)} Congestion
+                  </span>
+                  {volume.isIndoors && <span className="indoors-tag">Indoors</span>}
+                </div>
+                <div className="volume-distance">
+                  {volume.distance.toFixed(2)}m
+                </div>
               </div>
-              <div className="volume-distance">
-                {volume.distance.toFixed(2)}m
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
       
