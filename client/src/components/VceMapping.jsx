@@ -284,29 +284,28 @@ const LeafletMap = () => {
         flammableExtentCircleRef.current = null;
       }
       
-      // Create a new flammable extent circle
-      const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
-      
-      // Create a pattern for the flammable extent circle
-      const stripes = new L.StripePattern({
-        color: 'red',
-        weight: 2,
-        spaceWeight: 3,
-        spaceColor: 'transparent',
-        angle: 45
-      });
-      stripes.addTo(mapRef.current);
-      
-      flammableExtentCircleRef.current = L.circle(releasePoint, {
-        radius: flammableExtentData.maximum_downwind_extent,
-        color: 'red',
-        weight: 2,
-        fillPattern: stripes,
-        fillOpacity: 0.5
-      }).addTo(mapRef.current);
-      
-      // Zoom map to show the entire flammable extent
-      mapRef.current.fitBounds(flammableExtentCircleRef.current.getBounds());
+      // Only create circle if maximum_downwind_extent is greater than 0
+      if (flammableExtentData.maximum_downwind_extent > 0) {
+        // Create a new flammable extent circle
+        const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
+        
+        // Without using StripePattern, use a dashed stroke instead
+        flammableExtentCircleRef.current = L.circle(releasePoint, {
+          radius: flammableExtentData.maximum_downwind_extent,
+          color: 'red',
+          weight: 2,
+          fillColor: '#ffcccc',  // Light red fill
+          fillOpacity: 0.3,
+          dashArray: '5, 10'     // This creates a dashed line pattern
+        }).addTo(mapRef.current);
+        
+        // Zoom map to show the entire flammable extent
+        mapRef.current.fitBounds(flammableExtentCircleRef.current.getBounds());
+      } else {
+        // Optionally center map on release point if no extent to display
+        const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
+        mapRef.current.setView(releasePoint, 15);
+      }
     } else if (flammableExtentCircleRef.current && !showFlammableExtent) {
       // Remove the flammable extent circle when not showing it
       mapRef.current.removeLayer(flammableExtentCircleRef.current);
@@ -845,7 +844,12 @@ const LeafletMap = () => {
                     {flammableExtentData ? (
                       <div className="extent-results">
                         <p>Flammable envelope calculated successfully.</p>
-                        <p>Maximum downwind extent: {flammableExtentData.maximum_downwind_extent} meters</p>
+                        <p>Maximum downwind extent: {
+                            flammableExtentData.maximum_downwind_extent === 0 
+                              ? "No flammable extent detected" 
+                              : (flammableExtentData.maximum_downwind_extent?.toFixed(2) || "Unknown") + " meters"
+                            }
+                        </p>
                         <p>The red hatched circle on the map represents the maximum extent of the flammable envelope.</p>
                       </div>
                     ) : isFlammableExtentLoading ? (

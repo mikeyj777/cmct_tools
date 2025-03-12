@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+import json
 import pickle
 import asyncio
 import pandas as pd
@@ -22,7 +23,8 @@ async def flammable_envelope():
 
     data = request.get_json()
     m_io = Model_Interface()
-    m_io.set_inputs_from_json(json_data=data)
+    logging.debug(f'in flammable env method.  data to be modeled in py_lopa:  {data}')
+    m_io.set_inputs_from_json(json_data=json.dumps(data))
     m_io.inputs['vapor_cloud_explosion'] = True
     
     try:
