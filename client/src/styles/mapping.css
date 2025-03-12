@@ -560,3 +560,176 @@
   background-color: white;
   color: #3b82f6;
 }
+
+xxx
+
+/* Congested Volume Styles */
+.congested-volume-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-volume-button {
+  padding: 0.5rem 0.75rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-volume-button:hover {
+  background-color: #2563eb;
+}
+
+.volume-list {
+  margin-top: 1rem;
+}
+
+.volume-item {
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.volume-item:hover {
+  background-color: #f3f4f6;
+}
+
+.volume-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.volume-id {
+  font-weight: 500;
+}
+
+.congestion-level {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+.congestion-level.low {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.congestion-level.medium {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.congestion-level.high {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.indoors-tag {
+  font-size: 0.75rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+.volume-distance {
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Modal form styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.congested-volume-form h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.ok-button {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.delete-button {
+  padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  margin-right: auto;
+}

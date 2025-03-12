@@ -7,6 +7,7 @@ import JsonDataLoader from './steps/JsonDataLoader';
 import ReleaseLocationEditor from './steps/ReleaseLocationEditor';
 import BuildingPlacementTool from './steps/BuildingPlacementTool';
 import FlammableExtentTool from './steps/FlammableExtentTool';
+import CongestedVolumeIdentifier from './steps/CongestedVolumeIdentifier';
 
 // Import the FileImport component
 import FileImport from './FileImport';
@@ -59,6 +60,7 @@ const VceMappingMain = () => {
   const [buildings, setBuildings] = useState([]);
   const [flammableExtentData, setFlammableExtentData] = useState(null);
   const [showFlammableExtent, setShowFlammableExtent] = useState(false);
+  const [congestedVolumes, setCongestedVolumes] = useState([]);
   
   // Initialize the map
   useEffect(() => {
@@ -229,8 +231,8 @@ const VceMappingMain = () => {
   const toggleStep = (index) => {
     setActiveStep(activeStep === index ? null : index);
     
-    // Hide flammable extent when not on step 4
-    if (index !== 3) {
+    // Hide flammable extent when not on step 4 or 5
+    if (index !== 3 || index !== 4) {
       setShowFlammableExtent(false);
     }
   };
@@ -372,6 +374,37 @@ const VceMappingMain = () => {
                   onFlammableExtentData={(data) => {
                     setFlammableExtentData(data);
                     setShowFlammableExtent(true);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Step 5 - Identify Congested Volumes */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 4 ? 'active' : ''}`} 
+              onClick={() => toggleStep(4)}
+            >
+              <span>5. Identify Congested Volumes</span>
+              <span>{activeStep === 4 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 4 && (
+              <div className="step-content">
+                <CongestedVolumeIdentifier 
+                  jsonData={jsonData}
+                  currentReleaseLocation={currentReleaseLocation}
+                  mapState={mapState}
+                  updateGuidanceBanner={updateGuidanceBanner}
+                  onCongestedVolumesUpdate={(volumes) => {
+                    setCongestedVolumes(volumes);
+                    // Optionally, you can update the JSON data or perform other actions
+                    // For example:
+                    // const updatedJsonData = {
+                    //   ...jsonData,
+                    //   CongestedVolumes: volumes
+                    // };
+                    // setJsonData(updatedJsonData);
                   }}
                 />
               </div>
