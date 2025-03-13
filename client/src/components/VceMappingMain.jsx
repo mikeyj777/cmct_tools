@@ -9,6 +9,7 @@ import BuildingPlacementTool from './steps/BuildingPlacementTool';
 import FlammableExtentTool from './steps/FlammableExtentTool';
 import CongestedVolumeIdentifier from './steps/CongestedVolumeIdentifier';
 import FlammableMassTool from './steps/FlammableMassTool';
+import OverpressureEffectsTool from './steps/OverpressureEffectsTool';
 
 // Import the FileImport component
 import FileImport from './FileImport';
@@ -62,6 +63,7 @@ const VceMappingMain = () => {
   const [flammableExtentData, setFlammableExtentData] = useState(null);
   const [showFlammableExtent, setShowFlammableExtent] = useState(false);
   const [congestedVolumes, setCongestedVolumes] = useState([]);
+  const [buildingsWithOverpressure, setBuildingsWithOverpressure] = useState([]);
   
   // Initialize the map
   useEffect(() => {
@@ -436,6 +438,33 @@ const VceMappingMain = () => {
                   onFlammableMassCalculated={(massData) => {
                     console.log("congested volumes with flammable mass: ", massData);
                     setCongestedVolumes(massData);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Step 7 - Calculate Overpressure Effects on Buildings */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 6 ? 'active' : ''}`} 
+              onClick={() => toggleStep(6)}
+            >
+              <span>7. Calculate Overpressure Effects on Buildings</span>
+              <span>{activeStep === 6 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 6 && (
+              <div className="step-content">
+                <OverpressureEffectsTool 
+                  jsonData={jsonData}
+                  buildings={buildings}
+                  congestedVolumes={congestedVolumes}
+                  flammableExtentData={flammableExtentData}
+                  updateGuidanceBanner={updateGuidanceBanner}
+                  onBuildingsUpdate={(updatedBuildings) => {
+                    setBuildingsWithOverpressure(updatedBuildings);
+                    // You might also want to update your buildings state here
+                    setBuildings(updatedBuildings);
                   }}
                 />
               </div>
