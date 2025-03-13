@@ -68,11 +68,13 @@ def flammable_mass():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 def updated_buildings_with_overpressure():
+    logging.debug('in updated_buildings_with_overpressure.')
     data = request.get_json()
     flash_data = data['flash_data']
     buildings = data['buildings']
     congested_volumes = data['volumes']
-    vce = VCE()
+    # logging.debug(f"*** data: {data}\n\n\n*** flash data: {flash_data}\n\n\n***buidings: {buildings}\n\n\n***congested volumes: {congested_volumes}")
+    vce = VCE(logging=logging)
     
     try:
         updated_buildings = vce.get_blast_overpressures_at_buildings_from_congested_volumes_store_highest_pressure_at_each_building_return_updated_buildings(buildings=buildings, congested_volumes=congested_volumes, flash_data=flash_data)

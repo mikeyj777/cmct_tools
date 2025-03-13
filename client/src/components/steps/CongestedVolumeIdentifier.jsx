@@ -12,7 +12,7 @@ const CongestedVolumeForm = ({
   isEditing = false,
   onDelete 
 }) => {
-  const [congestionLevel, setCongestionLevel] = useState(initialData?.congestionLevel || 'low');
+  const [congestionLevel, setCongestionLevel] = useState(initialData?.congestionLevel || '0');
   const [isIndoors, setIsIndoors] = useState(initialData?.isIndoors || false);
   
   // New state for dimensions and elevation
@@ -37,8 +37,8 @@ const CongestedVolumeForm = ({
                 type="radio" 
                 name="congestionLevel" 
                 value="low" 
-                checked={congestionLevel === 'low'} 
-                onChange={() => setCongestionLevel('low')} 
+                checked={congestionLevel === 0} 
+                onChange={() => setCongestionLevel(0)} 
               />
               Low: Easy to walk through
             </label>
@@ -47,8 +47,8 @@ const CongestedVolumeForm = ({
                 type="radio" 
                 name="congestionLevel" 
                 value="medium" 
-                checked={congestionLevel === 'medium'} 
-                onChange={() => setCongestionLevel('medium')} 
+                checked={congestionLevel === 1} 
+                onChange={() => setCongestionLevel(1)} 
               />
               Medium: Cumbersome to walk through, often requires an indirect path
             </label>
@@ -57,8 +57,8 @@ const CongestedVolumeForm = ({
                 type="radio" 
                 name="congestionLevel" 
                 value="high" 
-                checked={congestionLevel === 'high'} 
-                onChange={() => setCongestionLevel('high')} 
+                checked={congestionLevel === 2} 
+                onChange={() => setCongestionLevel(2)} 
               />
               High: Not possible to walk through due to insufficient space
             </label>
@@ -328,8 +328,8 @@ const CongestedVolumeIdentifier = ({
               >
                 <div className="volume-info">
                   <span className="volume-label">Volume {volumeM3} m³</span>
-                  <span className={`congestion-level ${volume.congestionLevel}`}>
-                    {volume.congestionLevel.charAt(0).toUpperCase() + volume.congestionLevel.slice(1)} Congestion
+                  <span className={`congestion-level ${volume.congestionLevel === 0 ? 'low' : volume.congestionLevel === 1 ? 'medium' : 'high'}`}>
+                    {volume.congestionLevel === 0 ? 'Low' : volume.congestionLevel === 1 ? 'Medium' : 'High'} Congestion
                   </span>
                   {volume.isIndoors && <span className="indoors-tag">Indoors or Between Concrete Deck Floors</span>}
                 </div>

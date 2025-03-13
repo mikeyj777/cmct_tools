@@ -120,7 +120,7 @@ const VceMappingMain = () => {
         setBuildings(buildingsWithLocation);
       }
     }
-  }, [mapLoaded, jsonData, activeStep]);
+  }, [mapLoaded, jsonData]);
 
   // Function to toggle between map layers
   const toggleMapLayer = (layerType) => {
@@ -235,7 +235,7 @@ const VceMappingMain = () => {
     setActiveStep(activeStep === index ? null : index);
     
     // Hide flammable extent when not on step 4 or 5
-    if (index !== 3 || index !== 4) {
+    if (index < 2) {
       setShowFlammableExtent(false);
     }
   };
@@ -354,7 +354,7 @@ const VceMappingMain = () => {
                   getBuildingIcon={getBuildingIcon}
                   onBuildingsUpdate={ (bldgs) => {
                     setBuildings(bldgs);
-                    console.log("after setting buildings, here are the buildings: ", buildings);
+                    console.log("after setting buildings, here are the buildings: ", bldgs);
                   }}
                 />
               </div>
@@ -466,7 +466,7 @@ const VceMappingMain = () => {
                     console.log("updated buildings: ", updatedBuildings);
                     setBuildingsWithOverpressure(updatedBuildings);
                     // You might also want to update your buildings state here
-                    setBuildings(updatedBuildings);
+                    // setBuildings(updatedBuildings);
                   }}
                 />
               </div>
