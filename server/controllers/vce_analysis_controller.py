@@ -67,3 +67,12 @@ def flammable_mass():
         logging.debug(f'exception caused from flammable mass endpoint.  error info: {e}')
         return jsonify({'error': 'Internal Server Error'}), 500
 
+def updated_buildings_with_overpressure():
+    data = request.get_json()
+    flash_data = data['flash_data']
+    buildings = data['buildings']
+    congested_volumes = data['volumes']
+    vce = VCE()
+    updated_buildings = vce.get_blast_overpressures_at_buildings_from_congested_volumes_store_highest_pressure_at_each_building_return_updated_buildings(buildings=buildings, congested_volumes=congested_volumes, flash_data=flash_data)
+
+    return updated_buildings
