@@ -462,6 +462,8 @@ const VceMappingMain = () => {
                   flammableExtentData={flammableExtentData}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
+                    
+                    console.log("updated buildings: ", updatedBuildings);
                     setBuildingsWithOverpressure(updatedBuildings);
                     // You might also want to update your buildings state here
                     setBuildings(updatedBuildings);

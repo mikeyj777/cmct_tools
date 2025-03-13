@@ -759,3 +759,75 @@ xxx
   font-size: 0.8em;
   color: #666;
 }
+
+/* Overpressure Effects Tool Styles */
+.overpressure-effects-tool {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-info {
+  background-color: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tool-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.primary-button {
+  padding: 0.5rem 0.75rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.primary-button:hover {
+  background-color: #2563eb;
+}
+
+.primary-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.results-table-container {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.results-table th {
+  background-color: #f3f4f6;
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.results-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-message {
+  padding: 0.75rem;
+  background-color: #dbeafe;
+  border-radius: 0.25rem;
+  color: #1e40af;
+  font-size: 0.875rem;
+}

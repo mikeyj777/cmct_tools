@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { getApiUrl } from '../../utils/mapUtils';
+
+const apiUrl = getApiUrl();
 
 const OverpressureEffectsTool = ({ 
   jsonData, 
@@ -29,13 +32,13 @@ const OverpressureEffectsTool = ({
 
       // Prepare data for the API call
       const requestData = {
-        flash_data: flammableExtentData,
+        flash_data: flammableExtentData.flash_data,
         buildings: buildings,
         volumes: congestedVolumes
       };
 
       // Make API call to get overpressure results
-      const response = await fetch('/api/vce_get_building_overpressure_results', {
+      const response = await fetch(`${apiUrl}/api/vce_get_building_overpressure_results`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +53,7 @@ const OverpressureEffectsTool = ({
       const resultData = await response.json();
       
       // Update buildings with overpressure data
-      setBuildingsWithOverpressure(resultData);
+      setBuildingsWithOverpressure(resultData['updatedBuildings']);
       
       // Call the parent component's update function
       if (onBuildingsUpdate) {

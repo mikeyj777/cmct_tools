@@ -73,6 +73,10 @@ def updated_buildings_with_overpressure():
     buildings = data['buildings']
     congested_volumes = data['volumes']
     vce = VCE()
-    updated_buildings = vce.get_blast_overpressures_at_buildings_from_congested_volumes_store_highest_pressure_at_each_building_return_updated_buildings(buildings=buildings, congested_volumes=congested_volumes, flash_data=flash_data)
-
-    return updated_buildings
+    
+    try:
+        updated_buildings = vce.get_blast_overpressures_at_buildings_from_congested_volumes_store_highest_pressure_at_each_building_return_updated_buildings(buildings=buildings, congested_volumes=congested_volumes, flash_data=flash_data)
+        return jsonify({'updatedBuildings':updated_buildings}), 200
+    except Exception as e:
+        logging.debug(f'exception caused from building overpressure calculation.  error info: {e}')
+        return jsonify({'error': 'Internal Server Error'}), 500
