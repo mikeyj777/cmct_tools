@@ -331,7 +331,7 @@ const CongestedVolumeIdentifier = ({
                   <span className={`congestion-level ${volume.congestionLevel}`}>
                     {volume.congestionLevel.charAt(0).toUpperCase() + volume.congestionLevel.slice(1)} Congestion
                   </span>
-                  {volume.isIndoors && <span className="indoors-tag">Indoors</span>}
+                  {volume.isIndoors && <span className="indoors-tag">Indoors or Between Concrete Deck Floors</span>}
                 </div>
                 <div className="volume-distance">
                   {volume.distance.toFixed(2)}m

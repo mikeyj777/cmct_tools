@@ -434,7 +434,7 @@ const VceMappingMain = () => {
                   updateGuidanceBanner={updateGuidanceBanner}
                   onCongestedVolumesUpdate={setCongestedVolumes}
                   onFlammableMassCalculated={(massData) => {
-                    // Optional: Additional processing if needed
+                    console.log("congested volumes with flammable mass: ", massData);
                     setCongestedVolumes(massData);
                   }}
                 />
