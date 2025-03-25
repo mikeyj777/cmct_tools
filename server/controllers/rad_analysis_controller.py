@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+import json
 import pickle
 import asyncio
 import pandas as pd
@@ -16,10 +17,30 @@ from py_lopa.calcs import helpers
 from py_lopa.phast_io.phast_dispersion import Phast_Dispersion
 from py_lopa.phast_io.phast_prep import prep_weather, prep_substrate
 from py_lopa.calcs.consts import Wx_Enum
+from py_lopa.model_interface import Model_Interface
 
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def run_py_lopa_get_vlc(py_lopa_inputs):
+    m_io = Model_Interface()
+    logging.debug(f'in jet fire method.  data to be modeled in py_lopa:  {py_lopa_inputs}')
+    m_io.set_inputs_from_json(json_data=json.dumps(py_lopa_inputs))
+    m_io.inputs['get_phast_discharge_only'] = True
+    res = m_io.run()
+    if res != ResultCode.SUCCESS:
+        return None
+    p_disch_dict = m_io.phast_discharge
+    max_duration = -1
+    p_disch = None
+    for k, v in p_disch_dict.items():
+        if k > max_duration:
+            p_disch = v
+    vlc = p_disch.vlc
+
+    return vlc
+    
 
 def load_vlc():
     file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'vlc.pickle')
@@ -117,23 +138,25 @@ apple = 1
 async def radiation_analysis():
 
     data = request.get_json()
-    x_flare_m = float(data.get('xFlare', 45)) / 3.28084
-    y_flare_m = float(data.get('yFlare', 0)) / 3.28084
-    z_flare_m = float(data.get('zFlare', 50)) / 3.28084
+    py_lopa_inputs = data['py_lopa_inputs']
+    coords = data['coords']
+    x_flare_m = float(coords.get('xFlare', 45)) / 3.28084
+    y_flare_m = float(coords.get('yFlare', 0)) / 3.28084
+    z_flare_m = float(coords.get('zFlare', 50)) / 3.28084
     flare_position = LocalPosition(x = x_flare_m, y = y_flare_m, z = z_flare_m)
 
-    transect_start_x_m = float(data.get('xTransectStart', 0)) / 3.28084
-    transect_start_y_m = float(data.get('yTransectStart', 0)) / 3.28084
-    transect_start_z_m = float(data.get('zTransectStart', 0)) / 3.28084
+    transect_start_x_m = float(coords.get('xTransectStart', 0)) / 3.28084
+    transect_start_y_m = float(coords.get('yTransectStart', 0)) / 3.28084
+    transect_start_z_m = float(coords.get('zTransectStart', 0)) / 3.28084
     transect_start_pos = LocalPosition(x=transect_start_x_m, y=transect_start_y_m, z=transect_start_z_m)
 
-    transect_final_x_m = float(data.get('xTransectFinal', 0)) / 3.28084
-    transect_final_y_m = float(data.get('yTransectFinal', 0)) / 3.28084
-    transect_final_z_m = float(data.get('zTransectFinal', 200)) / 3.28084
+    transect_final_x_m = float(coords.get('xTransectFinal', 0)) / 3.28084
+    transect_final_y_m = float(coords.get('yTransectFinal', 0)) / 3.28084
+    transect_final_z_m = float(coords.get('zTransectFinal', 200)) / 3.28084
     transect_final_pos = LocalPosition(x=transect_final_x_m, y=transect_final_y_m, z=transect_final_z_m)
     
     try:
-        vlc = load_vlc()
+        vlc = run_py_lopa_get_vlc(py_lopa_inputs)
         jetFireCalc = run_jet_fire_calc(vlc, stack_height_m=z_flare_m)
 
         # pipe racks have heights between 7 m (23 ft) and 13 m (43 ft)

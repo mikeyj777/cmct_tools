@@ -1,5 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿// src/components/RadiationAnalysis.jsx
+
+import React, { useState, useEffect } from 'react';
 import PlotlyViewer from './PlotlyViewer';
+
+const apiUrl = process.env.REACT_APP_ENV == 'prod' ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV;
 
 // Define target elevations
 const targetElevations = {
@@ -25,6 +29,7 @@ const formDataDefault = {
  * Follows left-visualization, right-parameters layout pattern
  */
 const RadiationAnalysis = () => {
+  const [processData, setProcessData] = useState({});
   const [formData, setFormData] = useState(formDataDefault);
   const [plotData, setPlotData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +71,27 @@ const RadiationAnalysis = () => {
     });
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          setProcessData(data);
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+          setError('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  useEffect(() => {
+    console.log("process data uploaded.  contents:", processData);
+  }, [processData])
+
   /**
    * Submit form data to API
    * @param {Event} e - Form submit event
@@ -77,12 +103,16 @@ const RadiationAnalysis = () => {
     setPlotData([]);
     
     try {
-      const response = await fetch('http://WSSAFER02:8081/api/radiation_analysis', {
+      console.log("current api url: ", apiUrl);
+      const response = await fetch(`${apiUrl}/api/radiation_analysis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          coords: formData,
+          py_lopa_inputs: processData,
+        })
       });
       
       if (!response.ok) {
@@ -249,6 +279,18 @@ const RadiationAnalysis = () => {
         {/* Right side - Parameters */}
         <div className="rad-parameters">
           <form onSubmit={handleSubmit} className="rad-form">
+          <div className="rad-parameter-section">
+            <h2>Load JSON File</h2>
+            <div className="rad-input-group">
+              <label htmlFor="jsonFile">Upload JSON File:</label>
+              <input 
+                id="jsonFile"
+                type="file" 
+                accept=".json" 
+                onChange={handleFileUpload} 
+              />
+            </div>
+          </div>
             <div className="rad-button-group">
               <button 
                 type="submit" 
