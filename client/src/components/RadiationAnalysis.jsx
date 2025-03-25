@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PlotlyViewer from './PlotlyViewer';
-import Modal from './ui/Modal'; // Adjust the import path as needed
+import Modal from './ui/Modal';
 
 const apiUrl = process.env.REACT_APP_ENV == 'prod' ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV;
 
@@ -16,13 +16,13 @@ const targetElevations = {
 const formDataDefault = {
   xFlare: 0,
   yFlare: 0,
-  zFlare: 50,
-  xTransectStart: 45,
+  zFlare: 100,
+  xTransectStart: 0,
   yTransectStart: 0,
   zTransectStart: 0,
-  xTransectFinal: 45,
+  xTransectFinal: 150,
   yTransectFinal: 0,
-  zTransectFinal: 200
+  zTransectFinal: 0,
 };
 
 /**
@@ -40,6 +40,12 @@ const RadiationAnalysis = () => {
     bottomPipeRack: null,
     topPipeRack: null
   });
+  
+  const [peakRadiationData, setPeakRadiationData] = useState({
+    groundLevel: null,
+    overall: null,
+  })
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -60,14 +66,33 @@ const RadiationAnalysis = () => {
           Math.abs(curr.z - targetZ) < Math.abs(prev.z - targetZ) ? curr : prev
         );
       };
- 
+
       setCriticalData({
         groundLevel: findClosestData(targetElevations.groundLevel),
         bottomPipeRack: findClosestData(targetElevations.bottomPipeRack),
         topPipeRack: findClosestData(targetElevations.topPipeRack)
       });
+
+      const findPeakData = (elevation = null) => {
+        return plotData
+                .filter(elem => (elevation === null || elevation === undefined) || (elevation !== null && elem.z == elevation))
+                .reduce((prev, curr) => {
+                  return (curr.rad_level_w_m2 > prev.rad_level_w_m2) ? curr : prev
+                })
+      };
+
+      setPeakRadiationData({
+        groundLevel: findPeakData(0),
+        overall: findPeakData()
+      })
+
     }
   }, [plotData]);
+
+  useEffect(() => {
+    if (!peakRadiationData.groundLevel) return
+    console.log("peakRadiationData:  ", peakRadiationData);
+  }, [peakRadiationData])
 
   /**
    * Handle form input changes
@@ -97,10 +122,6 @@ const RadiationAnalysis = () => {
       reader.readAsText(file);
     }
   };
-
-  useEffect(() => {
-    console.log("process data uploaded.  contents:", processData);
-  }, [processData])
 
   /**
    * Submit form data to API
@@ -151,6 +172,10 @@ const RadiationAnalysis = () => {
       bottomPipeRack: null,
       topPipeRack: null
     });
+    setPeakRadiationData({
+      groundLevel: null,
+      overall: null
+    })
   };
 
   /**
@@ -233,6 +258,55 @@ const RadiationAnalysis = () => {
               </div>
             </div>
           )}
+
+          {/* Peak Radiation Results Section */}
+          {plotData.length > 0 && !isLoading && (
+            <div className="rad-critical-results">
+              <h2>Peak Radiation Locations</h2>
+              <div className="rad-results-grid">
+                {peakRadiationData.groundLevel ? (
+                  <div>
+                    <div className="rad-result-item">
+                      <div className="rad-result-location">Ground Level</div>
+                      <div className="rad-result-value">
+                          <span className={`rad-radiation-level ${getRiskClass(peakRadiationData.groundLevel.rad_level_w_m2)}`}>
+                            {formatRadiationLevel(peakRadiationData.groundLevel.rad_level_w_m2)}
+                          </span>
+                      </div>
+                      <div className="rad-result-elevation">
+                        Elevation: {peakRadiationData.groundLevel ? (peakRadiationData.groundLevel.z * 3.28084).toFixed(1) : 0} ft
+                      </div>
+                      <div className="rad-result-elevation">
+                        Downwind Distance: {peakRadiationData.groundLevel ? (peakRadiationData.groundLevel.x * 3.28084).toFixed(1) : 0} ft
+                      </div>
+                      <div className="rad-result-elevation">
+                        Crosswind Distance: {peakRadiationData.groundLevel ? (peakRadiationData.groundLevel.y * 3.28084).toFixed(1) : 0} ft
+                      </div>
+                    </div>
+                  </div>
+                ) : 'N/A'}
+                    
+                    <div className="rad-result-item">
+                      <div className="rad-result-location">Overall</div>
+                      <div className="rad-result-value">
+                        <span className={`rad-radiation-level ${peakRadiationData.overall.rad_level_w_m2 ? getRiskClass(peakRadiationData.overall.rad_level_w_m2) : ""}`}>
+                          {formatRadiationLevel(peakRadiationData.overall.rad_level_w_m2)}
+                        </span>
+                      </div>
+                      <div className="rad-result-elevation">
+                        Elevation: {peakRadiationData.overall ? (peakRadiationData.overall.z * 3.28084).toFixed(1) : 0} ft
+                      </div>
+                      <div className="rad-result-elevation">
+                        Downind Distance: {peakRadiationData.overall ? (peakRadiationData.overall.x * 3.28084).toFixed(1) : 0} ft
+                      </div>
+                      <div className="rad-result-elevation">
+                        Crosswind Distance: {peakRadiationData.overall ? (peakRadiationData.overall.y * 3.28084).toFixed(1) : 0} ft
+                      </div>
+                    </div>
+                  
+              </div>
+            </div>
+          )}
           
           <div className="rad-plot-container">
             {isLoading ? (
@@ -254,7 +328,7 @@ const RadiationAnalysis = () => {
               </div>
             )}
           </div>
-          
+
           {plotData.length > 0 && !isLoading && (
             <div className="rad-summary">
               <h2>Analysis Summary</h2>

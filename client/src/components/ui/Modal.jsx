@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ResizableBox } from 'react-resizable';
-import PlotlyViewer from './PlotlyViewer'; // Adjust the import path as needed
+import PlotlyViewer from '../PlotlyViewer'; // Adjust the import path as needed
 
 const Modal = ({ isOpen, onClose, data }) => {
   if (!isOpen) return null;
