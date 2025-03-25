@@ -40,6 +40,8 @@ const RadiationAnalysis = () => {
     bottomPipeRack: null,
     topPipeRack: null
   });
+  const [cache, setCache] = useState(null);
+  const [useCache, setUseCache] = useState(true);
   
   const [peakRadiationData, setPeakRadiationData] = useState({
     groundLevel: null,
@@ -55,6 +57,14 @@ const RadiationAnalysis = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
+  const handleCheckboxChange = (event) => {
+    setUseCache(event.target.checked);
+  };
+
+  useEffect(() => {
+    if (!useCache) setCache(null);
+  },[useCache])
 
   /**
    * Calculate critical radiation levels at target elevations when plot data changes
@@ -74,11 +84,10 @@ const RadiationAnalysis = () => {
       });
 
       const findPeakData = (elevation = null) => {
-        return plotData
-                .filter(elem => (elevation === null || elevation === undefined) || (elevation !== null && elem.z == elevation))
-                .reduce((prev, curr) => {
-                  return (curr.rad_level_w_m2 > prev.rad_level_w_m2) ? curr : prev
-                })
+        const filteredPlotData = plotData.filter(elem => (elevation === null || elevation === undefined) || (elevation !== null && elem.z == elevation))
+        if (filteredPlotData.length === 0) return null;
+        return filteredPlotData
+                .reduce((prev, curr) => (curr.rad_level_w_m2 > prev.rad_level_w_m2) ? curr : prev);
       };
 
       setPeakRadiationData({
@@ -143,6 +152,7 @@ const RadiationAnalysis = () => {
         body: JSON.stringify({
           coords: formData,
           py_lopa_inputs: processData,
+          cache: cache,
         })
       });
       
@@ -152,6 +162,12 @@ const RadiationAnalysis = () => {
       
       const data = await response.json();
       setPlotData(data.rad_data);
+      // 'exit_material': vlc.exit_material,
+      // 'discharge_records': vlc.discharge_records,
+      // 'discharge_result': vlc.discharge_result,
+
+
+      if (useCache) setCache(data.cache);
     } catch (error) {
       console.error('Error:', error);
       setError(error.message || 'An error occurred during analysis');
@@ -260,7 +276,7 @@ const RadiationAnalysis = () => {
           )}
 
           {/* Peak Radiation Results Section */}
-          {plotData.length > 0 && !isLoading && (
+          {peakRadiationData.overall && !isLoading && (
             <div className="rad-critical-results">
               <h2>Peak Radiation Locations</h2>
               <div className="rad-results-grid">
@@ -366,19 +382,31 @@ const RadiationAnalysis = () => {
         
         {/* Right side - Parameters */}
         <div className="rad-parameters">
-          <form onSubmit={handleSubmit} className="rad-form">
-          <div className="rad-parameter-section">
-            <h2>Load JSON File</h2>
-            <div className="rad-input-group">
-              <label htmlFor="jsonFile">Upload JSON File:</label>
-              <input 
-                id="jsonFile"
-                type="file" 
-                accept=".json" 
-                onChange={handleFileUpload} 
-              />
+          <div className="rad-button-group">
+            <div className="rad-parameter-section">
+              <h2>Load JSON File</h2>
+              <div className="rad-input-group">
+                <label htmlFor="jsonFile">Upload JSON File:</label>
+                <input 
+                  id="jsonFile"
+                  type="file" 
+                  accept=".json" 
+                  onChange={handleFileUpload} 
+                />
+              </div>
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={useCache}
+                    onChange={handleCheckboxChange}
+                  />
+                  Use cached data
+                </label>
+              </div>
             </div>
           </div>
+          <form onSubmit={handleSubmit} className="rad-form">
             <div className="rad-button-group">
               <button 
                 type="submit" 
