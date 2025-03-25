@@ -13,22 +13,18 @@ const PlotlyViewer = ({ data }) => {
     return null;
   }
 
-  // Create the trace configuration for the plot
+  // Create the trace configuration for the 3D scatter plot
   const trace = {
-    x: data.map(point => point.z * 3.28084),  // Convert to feet
-    y: data.map(point => point.rad_level_w_m2),
+    x: data.map(point => point.x * 3.28084),  // Convert to feet
+    y: data.map(point => point.y * 3.28084),  // Assuming y is available in the data
+    z: data.map(point => point.z * 3.28084),  // Assuming z is available in the data
     mode: 'markers',
-    type: 'scatter',
+    type: 'scatter3d',
     marker: {
+      size: 5,
       color: data.map(point => point.rad_level_w_m2),
-      colorscale: [
-        [0, 'blue'],
-        [0.25, 'green'],
-        [0.5, 'yellow'],
-        [0.75, 'red'],
-        [1, 'pink']
-      ],
-      size: 10,
+      colorscale: 'Viridis',
+      opacity: 0.8,
       colorbar: {
         title: 'Radiation Level (W/m²)',
         titlefont: {
@@ -47,39 +43,55 @@ const PlotlyViewer = ({ data }) => {
 
   // Define the layout configuration
   const layout = {
-    title: 'Radiation Analysis',
+    title: '3D Radiation Analysis',
     titlefont: {
       family: 'system-ui, -apple-system, sans-serif',
       size: 18,
       color: '#334155'
     },
-    xaxis: { 
-      title: 'Height (ft)',
-      titlefont: {
-        family: 'system-ui, -apple-system, sans-serif',
-        size: 14,
-        color: '#334155'
+    scene: {
+      xaxis: { 
+        title: 'Height (ft)',
+        titlefont: {
+          family: 'system-ui, -apple-system, sans-serif',
+          size: 14,
+          color: '#334155'
+        },
+        tickfont: {
+          family: 'system-ui, -apple-system, sans-serif',
+          size: 12,
+          color: '#64748b'
+        },
+        gridcolor: '#e2e8f0'
       },
-      tickfont: {
-        family: 'system-ui, -apple-system, sans-serif',
-        size: 12,
-        color: '#64748b'
+      yaxis: { 
+        title: 'Y Axis',
+        titlefont: {
+          family: 'system-ui, -apple-system, sans-serif',
+          size: 14,
+          color: '#334155'
+        },
+        tickfont: {
+          family: 'system-ui, -apple-system, sans-serif',
+          size: 12,
+          color: '#64748b'
+        },
+        gridcolor: '#e2e8f0'
       },
-      gridcolor: '#e2e8f0'
-    },
-    yaxis: { 
-      title: 'Radiation Level (W/m²)',
-      titlefont: {
-        family: 'system-ui, -apple-system, sans-serif',
-        size: 14,
-        color: '#334155'
-      },
-      tickfont: {
-        family: 'system-ui, -apple-system, sans-serif',
-        size: 12,
-        color: '#64748b'
-      },
-      gridcolor: '#e2e8f0'
+      zaxis: { 
+        title: 'Z Axis',
+        titlefont: {
+          family: 'system-ui, -apple-system, sans-serif',
+          size: 14,
+          color: '#334155'
+        },
+        tickfont: {
+          family: 'system-ui, -apple-system, sans-serif',
+          size: 12,
+          color: '#64748b'
+        },
+        gridcolor: '#e2e8f0'
+      }
     },
     plot_bgcolor: '#ffffff',
     paper_bgcolor: '#ffffff',

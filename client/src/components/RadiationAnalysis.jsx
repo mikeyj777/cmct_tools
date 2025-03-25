@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PlotlyViewer from './PlotlyViewer';
+import Modal from './ui/Modal'; // Adjust the import path as needed
 
 const apiUrl = process.env.REACT_APP_ENV == 'prod' ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV;
 
@@ -39,6 +40,15 @@ const RadiationAnalysis = () => {
     bottomPipeRack: null,
     topPipeRack: null
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   /**
    * Calculate critical radiation levels at target elevations when plot data changes
@@ -233,14 +243,18 @@ const RadiationAnalysis = () => {
                 <p>Please try again or check your connection</p>
               </div>
             ) : plotData.length > 0 ? (
-              <PlotlyViewer data={plotData} />
+              <>
+                <button onClick={handleOpenModal}>Pop Out</button>
+                <PlotlyViewer data={plotData} />
+                <Modal isOpen={isModalOpen} onClose={handleCloseModal} data={plotData} />
+              </>
             ) : (
               <div className="rad-placeholder">
                 <p>Enter parameters and submit to view radiation analysis</p>
               </div>
             )}
           </div>
-
+          
           {plotData.length > 0 && !isLoading && (
             <div className="rad-summary">
               <h2>Analysis Summary</h2>

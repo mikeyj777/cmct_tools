@@ -37,7 +37,7 @@ def run_py_lopa_get_vlc(py_lopa_inputs):
     for k, v in p_disch_dict.items():
         if k > max_duration:
             p_disch = v
-    vlc = p_disch.vlc
+    vlc = p_disch.vesselLeakCalculation
 
     return vlc
     
