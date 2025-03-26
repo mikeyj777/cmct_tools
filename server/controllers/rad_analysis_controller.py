@@ -19,7 +19,7 @@ from py_lopa.phast_io.phast_prep import prep_weather, prep_substrate
 from py_lopa.calcs.consts import Wx_Enum
 from py_lopa.model_interface import Model_Interface
 
-from utils.convert_between_objects_and_dicts import cache_to_dicts, cache_to_objects
+from utils.cache_handling import get_cache, store_cache
 
 import logging
 
@@ -50,13 +50,13 @@ def load_vlc():
         vlc = pickle.load(f)
     return vlc
 
-def run_jet_fire_calc(cache, stack_height_m):
-    material = cache['exit_material']
-    discharge_records = cache['discharge_records']
+def run_jet_fire_calc(vlc, stack_height_m):
+    material = vlc.exit_material
+    discharge_records = vlc.discharge_records
     discharge_record_count = 0
     if discharge_records is not None:
         discharge_record_count = len(discharge_records)
-    discharge_result = cache['discharge_result']
+    discharge_result = vlc.discharge_result
     discharge_result.height = stack_height_m
     weather = prep_weather() # defaults to nighttime stable wx condition
     substrate = prep_substrate() # defaults to concrete with no containment
@@ -139,10 +139,10 @@ apple = 1
 async def radiation_analysis():
 
     data = request.get_json()
-    cache = None
-    if 'cache' in data:
-        cache = data['cache']
     py_lopa_inputs = data['py_lopa_inputs']
+    cache = data['cache']
+    json_file_name = cache['json_file_name']
+    case_num = cache['case_num']
     coords = data['coords']
     x_flare_m = float(coords.get('xFlare', 45)) / 3.28084
     y_flare_m = float(coords.get('yFlare', 0)) / 3.28084
@@ -160,17 +160,11 @@ async def radiation_analysis():
     transect_final_pos = LocalPosition(x=transect_final_x_m, y=transect_final_y_m, z=transect_final_z_m)
     
     try:
-        if cache is not None:
-            cache = cache_to_objects(cache)
-        if cache is None:
+        vlc = get_cache(json_file_name=json_file_name, case_num=case_num)
+        if vlc is None:
             vlc = run_py_lopa_get_vlc(py_lopa_inputs)
-            cache = {
-                'exit_material': vlc.exit_material,
-                'discharge_records': vlc.discharge_records,
-                'discharge_result': vlc.discharge_result,
-            }
-        jetFireCalc = run_jet_fire_calc(cache, stack_height_m=z_flare_m)
-        cache = cache_to_dicts(cache)
+        jetFireCalc = run_jet_fire_calc(vlc, stack_height_m=z_flare_m)
+        store_cache(vlc=vlc)
         # pipe racks have heights between 7 m (23 ft) and 13 m (43 ft)
         flammable_output_config = prep_flammable_output_config(flare_position=flare_position, start_position=transect_start_pos, final_position=transect_final_pos)
 
@@ -178,7 +172,7 @@ async def radiation_analysis():
         rad_recs = radiation_transect.radiation_records
         rad_list_of_dicts = reduce(reducer, rad_recs, [])
         
-        return jsonify({'rad_data':rad_list_of_dicts, 'cache': cache}), 200
+        return jsonify({'rad_data':rad_list_of_dicts}), 200
 
     except Exception as e:
         logging.debug(f'exception caused from radiation_analysis endpoint.  error info: {e}')

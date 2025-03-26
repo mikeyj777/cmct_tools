@@ -40,7 +40,10 @@ const RadiationAnalysis = () => {
     bottomPipeRack: null,
     topPipeRack: null
   });
-  const [cache, setCache] = useState(null);
+  const [cache, setCache] = useState({
+    json_file_name: null,
+    case_number:0
+  });
   const [useCache, setUseCache] = useState(true);
   
   const [peakRadiationData, setPeakRadiationData] = useState({
@@ -123,6 +126,10 @@ const RadiationAnalysis = () => {
         try {
           const data = JSON.parse(event.target.result);
           setProcessData(data);
+          setCache({
+            json_file_name: file.name,
+            case_number: cache.case_number + 1
+          });
         } catch (error) {
           console.error('Error parsing JSON:', error);
           setError('Invalid JSON file');
