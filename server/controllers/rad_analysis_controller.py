@@ -140,9 +140,19 @@ async def radiation_analysis():
 
     data = request.get_json()
     py_lopa_inputs = data['py_lopa_inputs']
-    cache = data['cache']
-    json_file_name = cache['json_file_name']
-    case_num = cache['case_num']
+    cache_ready = False
+    if 'cache' in data:
+        cache = data['cache']
+        ready_1 = False
+        ready_2 = False
+        if 'json_file_name' in cache:
+            json_file_name = cache['json_file_name']
+            ready_1 = json_file_name is not None
+        if 'case_num' in cache:
+            case_num = cache['case_num']
+            ready_2 = case_num is not None
+        cache_ready = ready_1 and ready_2
+        
     coords = data['coords']
     x_flare_m = float(coords.get('xFlare', 45)) / 3.28084
     y_flare_m = float(coords.get('yFlare', 0)) / 3.28084
@@ -160,11 +170,14 @@ async def radiation_analysis():
     transect_final_pos = LocalPosition(x=transect_final_x_m, y=transect_final_y_m, z=transect_final_z_m)
     
     try:
-        vlc = get_cache(json_file_name=json_file_name, case_num=case_num)
+        vlc = None
+        if cache_ready:
+            vlc = get_cache(json_file_name=json_file_name, case_num=case_num)
         if vlc is None:
             vlc = run_py_lopa_get_vlc(py_lopa_inputs)
         jetFireCalc = run_jet_fire_calc(vlc, stack_height_m=z_flare_m)
-        store_cache(vlc=vlc)
+        if cache_ready:
+            store_cache(vlc=vlc, json_file_name=json_file_name, case_num=case_num)
         # pipe racks have heights between 7 m (23 ft) and 13 m (43 ft)
         flammable_output_config = prep_flammable_output_config(flare_position=flare_position, start_position=transect_start_pos, final_position=transect_final_pos)
 

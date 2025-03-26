@@ -1,6 +1,6 @@
 ﻿// src/components/RadiationAnalysis.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useDebugValue } from 'react';
 import PlotlyViewer from './PlotlyViewer';
 import Modal from './ui/Modal';
 
@@ -25,11 +25,15 @@ const formDataDefault = {
   zTransectFinal: 0,
 };
 
+const showCriticalData = false;
+const showPeakRadiationData = true;
+
 /**
  * RadiationAnalysis component for analyzing radiation from flares
  * Follows left-visualization, right-parameters layout pattern
  */
 const RadiationAnalysis = () => {
+  const [file, setFile] = useState(null);
   const [processData, setProcessData] = useState({});
   const [formData, setFormData] = useState(formDataDefault);
   const [plotData, setPlotData] = useState([]);
@@ -40,11 +44,9 @@ const RadiationAnalysis = () => {
     bottomPipeRack: null,
     topPipeRack: null
   });
-  const [cache, setCache] = useState({
-    json_file_name: null,
-    case_number:0
-  });
+  const [cache, setCache] = useState({});
   const [useCache, setUseCache] = useState(true);
+  const [caseNum, setCaseNum] = useState(0);
   
   const [peakRadiationData, setPeakRadiationData] = useState({
     groundLevel: null,
@@ -63,10 +65,11 @@ const RadiationAnalysis = () => {
 
   const handleCheckboxChange = (event) => {
     setUseCache(event.target.checked);
+    setCaseNum(0);
   };
 
   useEffect(() => {
-    if (!useCache) setCache(null);
+    if (!useCache) setCache({});
   },[useCache])
 
   /**
@@ -119,17 +122,17 @@ const RadiationAnalysis = () => {
   };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+    setFile(e.target.files[0]);
+  };
+
+  useEffect(() => {
     if (file) {
+      console.log("file name: ", file.name);
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
           const data = JSON.parse(event.target.result);
           setProcessData(data);
-          setCache({
-            json_file_name: file.name,
-            case_number: cache.case_number + 1
-          });
         } catch (error) {
           console.error('Error parsing JSON:', error);
           setError('Invalid JSON file');
@@ -137,7 +140,29 @@ const RadiationAnalysis = () => {
       };
       reader.readAsText(file);
     }
-  };
+  }, [file])
+
+  useEffect(() => {
+    console.log("process data:", processData);
+    if (file) {
+      setCaseNum(prev => prev + 1);
+    }
+  }, [processData]);
+
+  useEffect(() => {
+    console.log("case num: ", caseNum);
+    if (!useCache) return;
+    if (file) {
+      setCache({
+        json_file_name : file.name,
+        case_num : caseNum
+      })
+    }
+  },[caseNum]);
+
+  useEffect(() => {
+    console.log('cache: ', cache);
+  }, [cache])
 
   /**
    * Submit form data to API
@@ -150,7 +175,7 @@ const RadiationAnalysis = () => {
     setPlotData([]);
     
     try {
-      console.log("current api url: ", apiUrl);
+      console.log("cache: ", cache);
       const response = await fetch(`${apiUrl}/api/radiation_analysis`, {
         method: 'POST',
         headers: {
@@ -174,7 +199,6 @@ const RadiationAnalysis = () => {
       // 'discharge_result': vlc.discharge_result,
 
 
-      if (useCache) setCache(data.cache);
     } catch (error) {
       console.error('Error:', error);
       setError(error.message || 'An error occurred during analysis');
@@ -198,7 +222,9 @@ const RadiationAnalysis = () => {
     setPeakRadiationData({
       groundLevel: null,
       overall: null
-    })
+    });
+    setCache({});
+    setFile(null);
   };
 
   /**
@@ -233,7 +259,7 @@ const RadiationAnalysis = () => {
         <div className="rad-visualization">
           
           {/* Critical Results Section */}
-          {plotData.length > 0 && !isLoading && (
+          {showCriticalData && plotData.length > 0 && !isLoading (
             <div className="rad-critical-results">
               <h2>Critical Locations Analysis</h2>
               <div className="rad-results-grid">
@@ -283,7 +309,7 @@ const RadiationAnalysis = () => {
           )}
 
           {/* Peak Radiation Results Section */}
-          {peakRadiationData.overall && !isLoading && (
+          {showPeakRadiationData && peakRadiationData.overall && !isLoading && (
             <div className="rad-critical-results">
               <h2>Peak Radiation Locations</h2>
               <div className="rad-results-grid">
@@ -307,7 +333,7 @@ const RadiationAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                ) : 'N/A'}
+                ) : ''}
                     
                     <div className="rad-result-item">
                       <div className="rad-result-location">Overall</div>
