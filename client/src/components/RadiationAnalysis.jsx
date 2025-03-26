@@ -25,14 +25,13 @@ const formDataDefault = {
   zTransectFinal: 0,
 };
 
-const showCriticalData = false;
-const showPeakRadiationData = true;
-
 /**
  * RadiationAnalysis component for analyzing radiation from flares
  * Follows left-visualization, right-parameters layout pattern
  */
 const RadiationAnalysis = () => {
+  const [showPeakRadiationData, setShowPeakRadiationData] = useState(true);
+  const [showCriticalData,setShowCriticalData] = useState(false);
   const [file, setFile] = useState(null);
   const [processData, setProcessData] = useState({});
   const [formData, setFormData] = useState(formDataDefault);
@@ -63,7 +62,17 @@ const RadiationAnalysis = () => {
     setIsModalOpen(false);
   };
 
-  const handleCheckboxChange = (event) => {
+  const handleUseCacheCheckboxChange = (event) => {
+    setUseCache(event.target.checked);
+    setCaseNum(0);
+  };
+
+  const handleShowCriticalDataCheckboxChange = (event) => {
+    setUseCache(event.target.checked);
+    setCaseNum(0);
+  };
+
+  const handleShowPeakRadiationDataCheckboxChange = (event) => {
     setUseCache(event.target.checked);
     setCaseNum(0);
   };
@@ -432,9 +441,29 @@ const RadiationAnalysis = () => {
                   <input
                     type="checkbox"
                     checked={useCache}
-                    onChange={handleCheckboxChange}
+                    onChange={handleUseCacheCheckboxChange}
                   />
                   Use cached data
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showPeakRadiationData}
+                    onChange={handleShowPeakRadiationDataCheckboxChange}
+                  />
+                  Show Peak Radiation Data
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showCriticalData}
+                    onChange={handleShowCriticalDataCheckboxChange}
+                  />
+                  Show Critical Point Data
                 </label>
               </div>
             </div>
