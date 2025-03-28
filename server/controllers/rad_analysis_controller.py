@@ -50,7 +50,7 @@ def load_vlc():
         vlc = pickle.load(f)
     return vlc
 
-def run_jet_fire_calc(vlc, stack_height_m):
+def run_jet_fire_calc(vlc, stack_height_m, ws_mph = 3.3554):
     material = vlc.exit_material
     discharge_records = vlc.discharge_records
     discharge_record_count = 0
@@ -59,6 +59,9 @@ def run_jet_fire_calc(vlc, stack_height_m):
     discharge_result = vlc.discharge_result
     discharge_result.height = stack_height_m
     weather = prep_weather() # defaults to nighttime stable wx condition
+    
+    weather.wind_speed = ws_mph * 1.5 / 3.3554
+
     substrate = prep_substrate() # defaults to concrete with no containment
     flammable_parameters = FlammableParameters()
 
@@ -153,20 +156,21 @@ async def radiation_analysis():
             ready_2 = case_num is not None
         cache_ready = ready_1 and ready_2
         
-    coords = data['coords']
-    x_flare_m = float(coords.get('xFlare', 45)) / 3.28084
-    y_flare_m = float(coords.get('yFlare', 0)) / 3.28084
-    z_flare_m = float(coords.get('zFlare', 50)) / 3.28084
+    coords_and_met = data['coordsAndMet']
+    ws_mph = coords_and_met['windSpeedMph']
+    x_flare_m = float(coords_and_met.get('xFlare', 45)) / 3.28084
+    y_flare_m = float(coords_and_met.get('yFlare', 0)) / 3.28084
+    z_flare_m = float(coords_and_met.get('zFlare', 50)) / 3.28084
     flare_position = LocalPosition(x = x_flare_m, y = y_flare_m, z = z_flare_m)
 
-    transect_start_x_m = float(coords.get('xTransectStart', 0)) / 3.28084
-    transect_start_y_m = float(coords.get('yTransectStart', 0)) / 3.28084
-    transect_start_z_m = float(coords.get('zTransectStart', 0)) / 3.28084
+    transect_start_x_m = float(coords_and_met.get('xTransectStart', 0)) / 3.28084
+    transect_start_y_m = float(coords_and_met.get('yTransectStart', 0)) / 3.28084
+    transect_start_z_m = float(coords_and_met.get('zTransectStart', 0)) / 3.28084
     transect_start_pos = LocalPosition(x=transect_start_x_m, y=transect_start_y_m, z=transect_start_z_m)
 
-    transect_final_x_m = float(coords.get('xTransectFinal', 0)) / 3.28084
-    transect_final_y_m = float(coords.get('yTransectFinal', 0)) / 3.28084
-    transect_final_z_m = float(coords.get('zTransectFinal', 200)) / 3.28084
+    transect_final_x_m = float(coords_and_met.get('xTransectFinal', 0)) / 3.28084
+    transect_final_y_m = float(coords_and_met.get('yTransectFinal', 0)) / 3.28084
+    transect_final_z_m = float(coords_and_met.get('zTransectFinal', 200)) / 3.28084
     transect_final_pos = LocalPosition(x=transect_final_x_m, y=transect_final_y_m, z=transect_final_z_m)
     
     try:
@@ -175,7 +179,7 @@ async def radiation_analysis():
             vlc = get_cache(json_file_name=json_file_name, case_num=case_num)
         if vlc is None:
             vlc = run_py_lopa_get_vlc(py_lopa_inputs)
-        jetFireCalc = run_jet_fire_calc(vlc, stack_height_m=z_flare_m)
+        jetFireCalc = run_jet_fire_calc(vlc, stack_height_m=z_flare_m, ws_mph = ws_mph)
         if cache_ready:
             store_cache(vlc=vlc, json_file_name=json_file_name, case_num=case_num)
         # pipe racks have heights between 7 m (23 ft) and 13 m (43 ft)

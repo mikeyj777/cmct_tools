@@ -14,9 +14,10 @@ const targetElevations = {
 };
 
 const formDataDefault = {
+  windSpeedMph: 3.4,
   xFlare: 0,
   yFlare: 0,
-  zFlare: 100,
+  zFlare: 150,
   xTransectStart: 0,
   yTransectStart: 0,
   zTransectStart: 0,
@@ -191,7 +192,7 @@ const RadiationAnalysis = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          coords: formData,
+          coordsAndMet: formData,
           py_lopa_inputs: processData,
           cache: cache,
         })
@@ -487,6 +488,19 @@ const RadiationAnalysis = () => {
               </button>
             </div>
             <div className="rad-parameter-section">
+            <h2>Met Conditions</h2>
+              <div className="rad-input-group">
+                <label htmlFor="xFlare">Wind Speed (mph):</label>
+                <input 
+                  id="windSpeedMph"
+                  type="number" 
+                  name="windSpeedMph" 
+                  value={formData.windSpeedMph} 
+                  onChange={handleChange} 
+                  step="0.1"
+                  required 
+                />
+              </div>
               <h2>Flare Position</h2>
               <div className="rad-input-group">
                 <label htmlFor="xFlare">X Distance (ft):</label>
