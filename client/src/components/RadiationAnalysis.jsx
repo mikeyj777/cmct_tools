@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useDebugValue } from 'react';
 import PlotlyViewer from './PlotlyViewer';
+import PlotlyProfileViewer from './PlotlyProfileViewer';
 import Modal from './ui/Modal';
+import { getApiUrl } from '../utils/mapUtils';
 
-const apiUrl = process.env.REACT_APP_ENV == 'prod' ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV;
+const apiUrl = getApiUrl();
 
 // Define target elevations
 const targetElevations = {
@@ -14,14 +16,14 @@ const targetElevations = {
 };
 
 const formDataDefault = {
-  windSpeedMph: 3.4,
+  windSpeedMph: 30,
   xFlare: 0,
   yFlare: 0,
   zFlare: 150,
   xTransectStart: 0,
   yTransectStart: 0,
   zTransectStart: 0,
-  xTransectFinal: 150,
+  xTransectFinal: 500,
   yTransectFinal: 0,
   zTransectFinal: 0,
 };
@@ -37,6 +39,7 @@ const RadiationAnalysis = () => {
   const [processData, setProcessData] = useState({});
   const [formData, setFormData] = useState(formDataDefault);
   const [plotData, setPlotData] = useState([]);
+  const [profileData, setProfileData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [criticalData, setCriticalData] = useState({
@@ -105,6 +108,15 @@ const RadiationAnalysis = () => {
         return filteredPlotData
                 .reduce((prev, curr) => (curr.rad_level_w_m2 > prev.rad_level_w_m2) ? curr : prev);
       };
+
+      const sortedData = plotData.map((curr) => {
+        return {
+          dist: Math.sqrt(curr.x**2 + curr.y**2 + curr.z**2),
+          rad_level_w_m2: curr.rad_level_w_m2
+        };
+      }).sort((a, b) => a.dist - b.dist);
+      
+      setProfileData(sortedData);
 
       setPeakRadiationData({
         groundLevel: findPeakData(0),
@@ -380,6 +392,25 @@ const RadiationAnalysis = () => {
                 <button onClick={handleOpenModal}>Pop Out</button>
                 <PlotlyViewer data={plotData} />
                 <Modal isOpen={isModalOpen} onClose={handleCloseModal} data={plotData} />
+              </>
+            ) : (
+              <div className="rad-placeholder">
+                <p>Enter parameters and submit to view radiation analysis</p>
+              </div>
+            )}
+          </div>
+
+          <div className="rad-plot-container">
+            {isLoading ? (
+              <div className="rad-loading">Processing analysis</div>
+            ) : error ? (
+              <div className="rad-placeholder">
+                <p>Error: {error}</p>
+                <p>Please try again or check your connection</p>
+              </div>
+            ) : profileData.length > 0 ? (
+              <>
+                <PlotlyProfileViewer data={profileData} />
               </>
             ) : (
               <div className="rad-placeholder">

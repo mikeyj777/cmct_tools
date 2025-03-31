@@ -143,10 +143,11 @@ const FlammableExtentTool = ({
           <p>Maximum downwind extent: {
               flammableExtentData.maximum_downwind_extent === 0 
                 ? "No flammable extent detected" 
-                : (flammableExtentData.maximum_downwind_extent?.toFixed(2) || "Unknown") + " meters"
+                : (flammableExtentData.maximum_downwind_extent?.toFixed(2) || "Unknown")
+                  + " meters."
+                  + " The red hatched circle on the map represents the maximum extent of the flammable envelope."
               }
           </p>
-          <p>The red hatched circle on the map represents the maximum extent of the flammable envelope.</p>
           
           {!showFlammableExtent && (
             <button 

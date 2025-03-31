@@ -41,13 +41,22 @@ async def flammable_envelope():
         # }
 
         recs = resp['flammable_envelope_list_of_dicts']
+        max_dist_m = int(resp['maximum_downwind_extent'])
+        flash_data = resp['flash_data']
 
         logging.debug(f'data successful.  first few records:  {recs[:min(5, len(recs))]}')
 
-        return jsonify({'flam_env_data':resp}), 200
+        logging.debug(f'full response: {resp}')
+
+        return jsonify({
+            'flam_env_data':{
+                'flammable_envelope_list_of_dicts' : recs,
+                'maximum_downwind_extent' : max_dist_m,
+                'flash_data' : flash_data,
+            }}), 200
 
     except Exception as e:
-        logging.debug(f'exception caused from radiation_analysis endpoint.  error info: {e}')
+        logging.debug(f'exception caused from vce endpoint.  error info: {e}')
         return jsonify({'error': 'Internal Server Error'}), 500
 
 def flammable_mass():

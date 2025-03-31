@@ -106,17 +106,8 @@ export const getOccupancyClass = (level) => {
 
 // Get API URL based on environment
 export const getApiUrl = () => {
-  const protocol = process.env.REACT_APP_API_PROTOCOL || 'http';
-  const port = process.env.REACT_APP_API_PORT || '8081';
-  let host;
-  
-  if (process.env.REACT_APP_ENVIRONMENT === 'PROD') {
-    host = process.env.REACT_APP_API_HOST_PROD || 'wssafer02';
-  } else {
-    host = process.env.REACT_APP_API_HOST_DEV || 'localhost';
-  }
-  
-  return `${protocol}://${host}:${port}`;
+  const apiUrl = process.env.REACT_APP_ENV == 'prod' ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV;
+  return apiUrl;
 };
 
 // Initialize leaflet map with common settings
