@@ -46,8 +46,6 @@ async def flammable_envelope():
 
         logging.debug(f'data successful.  first few records:  {recs[:min(5, len(recs))]}')
 
-        logging.debug(f'full response: {resp}')
-
         return jsonify({
             'flam_env_data':{
                 'flammable_envelope_list_of_dicts' : recs,
