@@ -8,3 +8,5 @@ import and include all other component stylesheets for reference */
 @import './plotlyviewer.css';
 @import './radanalysis.css';
 @import './mapping.css';
+@import './EvaporationCalculator.css';
+@import './HelpModal.css';

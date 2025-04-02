@@ -1,0 +1,207 @@
+:root {
+  --primary-color: #2563eb;
+  --error-color: #dc2626;
+  --background-color: #ffffff;
+  --border-color: #e5e7eb;
+  --text-color: #1f2937;
+  --spacing-unit: 1rem;
+  --border-radius: 0.375rem;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.calculator-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-unit);
+  background-color: var(--background-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.calculator-header {
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.calculator-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-unit);
+}
+
+.form-group {
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-input {
+  width: 100%;
+  padding: calc(var(--spacing-unit) * 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+}
+
+.calculate-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+  margin-top: var(--spacing-unit);
+}
+
+.calculate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.results-container {
+  background-color: #f0f9ff;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-unit);
+  margin-bottom: var(--spacing-unit);
+}
+
+.error-message {
+  background-color: #fef2f2;
+  color: var(--error-color);
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-unit);
+}
+
+.chemical-info {
+  background-color: #f3f4f6;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-unit);
+}
+
+.dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  z-index: 1000;
+}
+
+.dropdown-item {
+  padding: calc(var(--spacing-unit) * 0.5);
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.mixture-summary {
+  margin-top: var(--spacing-unit);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-unit);
+}
+
+.mixture-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: calc(var(--spacing-unit) * 0.5);
+}
+
+.table-header {
+  text-align: left;
+  padding: calc(var(--spacing-unit) * 0.5);
+  border-bottom: 1px solid var(--border-color);
+  background-color: #f3f4f6;
+}
+
+.table-cell {
+  padding: calc(var(--spacing-unit) * 0.5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.remove-button {
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 0.25);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.component-input {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 0.5);
+  align-items: center;
+  margin-top: var(--spacing-unit);
+}
+
+/* .component-input-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 0.5);
+} */
+
+.note-text {
+  margin-left: calc(var(--spacing-unit) * 0.5);
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.amount-input {
+  width: 100px;
+  padding: calc(var(--spacing-unit) * 0.25);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.checkbox {
+  margin-left: calc(var(--spacing-unit) * 0.5);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 0.25);
+}
+
+.help-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-button:hover {
+  background: #e0e0e0;
+}
+
+.basis-selection {
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
