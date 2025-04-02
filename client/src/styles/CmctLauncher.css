@@ -1,0 +1,235 @@
+/* C64 Style Game Selection Screen */
+
+/* ====== Reset Styles ====== */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ====== Base Styles ====== */
+.c64-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #004258;
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.c64-screen {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background-color: #00596b;
+  border: 20px solid #1d1d1d;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  position: relative;
+  padding: 20px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ====== Header Styles ====== */
+.c64-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.c64-header h1 {
+  font-size: 28px;
+  color: #78f8ff;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.c64-line {
+  height: 3px;
+  background-color: #78f8ff;
+  margin: 10px 0;
+}
+
+/* ====== Content Styles ====== */
+.c64-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.c64-intro {
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.c64-programs-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.c64-program-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.c64-program-box {
+  width: 90px;
+  height: 90px;
+  background-color: #ffffff;
+  border: 8px solid #78f8ff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.c64-program-box:hover {
+  border-color: #ffff00;
+}
+
+.c64-program-name {
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ====== Program Icons ====== */
+.c64-program-icon {
+  width: 100%;
+  height: 100%;
+}
+
+/* Flare Stack Icon */
+.icon-rad {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90"><rect x="10" y="50" width="30" height="30" fill="%23909090" /><rect x="15" y="60" width="8" height="8" fill="%23b0ffff" /><rect x="27" y="60" width="8" height="8" fill="%23b0ffff" /><rect x="15" y="72" width="20" height="8" fill="%23303030" /><rect x="50" y="40" width="8" height="40" fill="%23bbbbbb" /><rect x="45" y="35" width="18" height="5" fill="%23bbbbbb" /><path d="M 54,30 Q 64,20 64,10 Q 74,20 64,30 Z" fill="%23ff7800" /><path d="M 54,30 Q 64,22 64,15 Q 70,22 64,30 Z" fill="%23ffff00" /></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* VCE Mapper Icon */
+.icon-vce {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90"><rect x="10" y="50" width="20" height="30" fill="%23888888" stroke="%23555555" stroke-width="1" /><rect x="10" y="45" width="20" height="5" fill="%23666666" /><rect x="40" y="40" width="12" height="40" fill="%23999999" stroke="%23555555" stroke-width="1" /><rect x="38" y="50" width="16" height="4" fill="%23777777" /><rect x="38" y="60" width="16" height="4" fill="%23777777" /><rect x="60" y="45" width="20" height="5" fill="%23888888" /><rect x="60" y="55" width="20" height="5" fill="%23888888" /><rect x="60" y="65" width="20" height="5" fill="%23888888" /><rect x="30" y="55" width="10" height="3" fill="%23666666" /><rect x="52" y="45" width="8" height="3" fill="%23666666" /><rect x="52" y="65" width="8" height="3" fill="%23666666" /><circle cx="15" cy="40" r="3" fill="%23cccccc" stroke="%23333333" stroke-width="1" /><circle cx="46" cy="35" r="3" fill="%23cccccc" stroke="%23333333" stroke-width="1" /><path d="M 5,35 Q 20,25 35,35 Q 50,25 65,35 Q 80,25 85,40 Q 75,50 85,55 Q 70,65 50,55 Q 30,65 15,55 Q 5,60 5,35 Z" fill="%23b0b0ff" fill-opacity="0.7" /><path d="M 15,40 Q 25,35 35,40 Q 45,35 55,40 Q 65,35 75,45 Q 65,50 75,55 Q 60,60 45,50 Q 30,60 20,50 Q 15,45 15,40 Z" fill="%23f0f0ff" fill-opacity="0.7" /></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* Lab Hood Icon */
+.icon-evap {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90"><rect x="10" y="20" width="70" height="55" fill="%23303030" /><rect x="15" y="25" width="60" height="30" fill="%23505050" /><rect x="20" y="55" width="50" height="15" fill="%23404040" /><rect x="25" y="58" width="10" height="5" fill="%2390ffff" /><path d="M 25,58 v -8 h 10 v 8 Z" fill="none" stroke="%23d0d0d0" stroke-width="1" /><rect x="40" y="58" width="10" height="8" fill="%23ff90ff" /><path d="M 40,58 v -12 h 10 v 12 Z" fill="none" stroke="%23d0d0d0" stroke-width="1" /><path d="M 58,58 h 10 l -3,-12 h -4 Z" fill="%23ffff90" /><path d="M 58,58 h 10 l -3,-12 h -4 Z" fill="none" stroke="%23d0d0d0" stroke-width="1" /><path d="M 27,50 q 3,-5 6,0 M 42,45 q 3,-5 6,0 M 60,45 q 3,-5 6,0" stroke="%23ffffff" stroke-width="1" fill="none" /><path d="M 29,45 q 3,-5 6,0 M 44,40 q 3,-5 6,0 M 62,40 q 3,-5 6,0" stroke="%23ffffff" stroke-width="1" fill="none" /></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* ====== Banner Styles ====== */
+.c64-banner {
+  background-color: #00354a;
+  padding: 10px 20px;
+  margin: 20px 0;
+}
+
+.c64-banner-instruction {
+  color: #78f8ff;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.c64-banner-app {
+  color: #ffff00;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+/* ====== Footer Styles ====== */
+.c64-footer {
+  margin-top: 20px;
+}
+
+.c64-ready {
+  color: #78f8ff;
+  font-size: 18px;
+  margin: 10px 0;
+  position: relative;
+}
+
+.c64-ready::after {
+  content: "█";
+  color: #78f8ff;
+  margin-left: 5px;
+  animation: blink-cursor 1s infinite;
+}
+
+/* ====== Retro Effects ====== */
+.c64-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.c64-screen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ====== Animations ====== */
+@keyframes blink-cursor {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+/* ====== Responsive Adjustments ====== */
+@media (max-width: 768px) {
+  .c64-programs-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .c64-program-wrapper {
+    margin-bottom: 20px;
+  }
+}
