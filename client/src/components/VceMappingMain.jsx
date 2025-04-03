@@ -322,6 +322,10 @@ const VceMappingMain = () => {
     console.log("congested volumes have been updated.  here is the latest:  ", congestedVolumes);
   }, [congestedVolumes])
 
+  useEffect(() => {
+    console.log("buildings updated: ", buildings);
+  }, [buildings])
+
   return (
     <div className="map-container">
       {/* Left Panel */}
@@ -399,7 +403,6 @@ const VceMappingMain = () => {
                   getBuildingIcon={getBuildingIcon}
                   onBuildingsUpdate={ (bldgs) => {
                     setBuildings(bldgs);
-                    console.log("after setting buildings, here are the buildings: ", bldgs);
                   }}
                 />
               </div>
@@ -446,6 +449,7 @@ const VceMappingMain = () => {
                   jsonData={jsonData}
                   currentReleaseLocation={currentReleaseLocation}
                   mapState={mapState}
+                  congestedVolumes={congestedVolumes}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onCongestedVolumesUpdate={(volumes) => {
                     setCongestedVolumes(volumes);

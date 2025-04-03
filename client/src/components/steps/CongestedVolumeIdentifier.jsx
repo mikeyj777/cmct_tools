@@ -166,12 +166,11 @@ const CongestedVolumeIdentifier = ({
   jsonData,
   currentReleaseLocation,
   mapState,
+  congestedVolumes,
   updateGuidanceBanner,
   onCongestedVolumesUpdate
 }) => {
   const { mapRef, mapLoaded, releaseMarkerRef } = mapState;
-  
-  const [congestedVolumes, setCongestedVolumes] = useState([]);
   const [isAddingVolume, setIsAddingVolume] = useState(false);
   const [currentDistance, setCurrentDistance] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -252,12 +251,10 @@ const CongestedVolumeIdentifier = ({
       const updatedVolumes = congestedVolumes.map(vol => 
         vol.id === activeVolumeId ? newVolume : vol
       );
-      setCongestedVolumes(updatedVolumes);
       onCongestedVolumesUpdate(updatedVolumes);
     } else {
       // Add new volume
       const updatedVolumes = [...congestedVolumes, newVolume];
-      setCongestedVolumes(updatedVolumes);
       onCongestedVolumesUpdate(updatedVolumes);
     }
     
@@ -291,7 +288,6 @@ const CongestedVolumeIdentifier = ({
   // Function to delete a volume
   const deleteVolume = (volumeId) => {
     const updatedVolumes = congestedVolumes.filter(v => v.id !== volumeId);
-    setCongestedVolumes(updatedVolumes);
     onCongestedVolumesUpdate(updatedVolumes);
     setShowForm(false);
     setActiveVolumeId(null);
