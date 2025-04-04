@@ -83,6 +83,12 @@ const VceMappingMain = () => {
     };
   }, []);
 
+  const resetData = () => {
+    setFlammableExtentData([]);
+    setShowFlammableExtent(false);
+    setCongestedVolumes([]);
+  }
+
   // Effect to update map when JSON data is loaded
   useEffect(() => {
     if (mapLoaded && jsonData && jsonData.PrimaryInputs) {
@@ -120,6 +126,7 @@ const VceMappingMain = () => {
         }));
         setBuildings(buildingsWithLocation);
       }
+      resetData();
     }
   }, [mapLoaded, jsonData]);
 
@@ -238,8 +245,8 @@ const VceMappingMain = () => {
   };
 
   useEffect(() => {
-    setShowFlammableExtent(flammableExtentData && activeStep && activeStep > 1);
-  }, [activeStep, flammableExtentData])
+    setShowFlammableExtent(flammableExtentData && flammableExtentData.length > 0);
+  }, [flammableExtentData])
 
   // Function to toggle the FileImport modal
   const toggleFileImport = () => {
@@ -278,44 +285,44 @@ const VceMappingMain = () => {
     buildingMarkersRef
   };
 
-    // Effect to display flammable extent circle when data is available
-    useEffect(() => {
-      if (mapLoaded && flammableExtentData && showFlammableExtent && currentReleaseLocation) {
-        // Remove any existing flammable extent circle
-        if (flammableExtentCircleRef.current) {
-          mapRef.current.removeLayer(flammableExtentCircleRef.current);
-          flammableExtentCircleRef.current = null;
-        }
-        
-        // Only create circle if maximum_downwind_extent is greater than 0
-        if (flammableExtentData.maximum_downwind_extent > 0) {
-          // Create a new flammable extent circle
-          const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
-          
-          // Use our utility function to create the flammable extent circle
-          flammableExtentCircleRef.current = createFlammableExtentCircle(
-            mapRef.current,
-            releasePoint,
-            flammableExtentData.maximum_downwind_extent
-          );
-          
-          // Zoom map to show the entire flammable extent
-          mapRef.current.fitBounds(flammableExtentCircleRef.current.getBounds());
-        } else {
-          // Optionally center map on release point if no extent to display
-          const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
-          mapRef.current.setView(releasePoint, 15);
-        }
+  // Effect to display flammable extent circle when data is available
+  useEffect(() => {
+    if (mapLoaded && showFlammableExtent && currentReleaseLocation) {
+      // Remove any existing flammable extent circle
+      if (flammableExtentCircleRef.current) {
+        mapRef.current.removeLayer(flammableExtentCircleRef.current);
+        flammableExtentCircleRef.current = null;
       }
       
-      return () => {
-        // Cleanup function
-        if (flammableExtentCircleRef.current && mapRef.current) {
-          mapRef.current.removeLayer(flammableExtentCircleRef.current);
-          flammableExtentCircleRef.current = null;
-        }
-      };
-    }, [flammableExtentData, showFlammableExtent, currentReleaseLocation, mapLoaded, flammableExtentCircleRef, mapRef]);
+      // Only create circle if maximum_downwind_extent is greater than 0
+      if (flammableExtentData.maximum_downwind_extent > 0) {
+        // Create a new flammable extent circle
+        const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
+        
+        // Use our utility function to create the flammable extent circle
+        flammableExtentCircleRef.current = createFlammableExtentCircle(
+          mapRef.current,
+          releasePoint,
+          flammableExtentData.maximum_downwind_extent
+        );
+        
+        // Zoom map to show the entire flammable extent
+        mapRef.current.fitBounds(flammableExtentCircleRef.current.getBounds());
+      } else {
+        // Optionally center map on release point if no extent to display
+        const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
+        mapRef.current.setView(releasePoint, 15);
+      }
+    }
+    
+    return () => {
+      // Cleanup function
+      if (flammableExtentCircleRef.current && mapRef.current) {
+        mapRef.current.removeLayer(flammableExtentCircleRef.current);
+        flammableExtentCircleRef.current = null;
+      }
+    };
+  }, [showFlammableExtent, currentReleaseLocation, mapLoaded, flammableExtentCircleRef, mapRef]);
   
 
   useEffect(() => {
@@ -427,7 +434,6 @@ const VceMappingMain = () => {
                   updateGuidanceBanner={updateGuidanceBanner}
                   onFlammableExtentData={(data) => {
                     setFlammableExtentData(data);
-                    setShowFlammableExtent(true);
                   }}
                 />
               </div>
