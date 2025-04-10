@@ -84,7 +84,7 @@ const VceMappingMain = () => {
   }, []);
 
   const resetData = () => {
-    setFlammableExtentData([]);
+    setFlammableExtentData(null);
     setShowFlammableExtent(false);
     setCongestedVolumes([]);
   }
@@ -245,7 +245,7 @@ const VceMappingMain = () => {
   };
 
   useEffect(() => {
-    setShowFlammableExtent(flammableExtentData && flammableExtentData.length > 0);
+    setShowFlammableExtent(!!flammableExtentData);
   }, [flammableExtentData])
 
   // Function to toggle the FileImport modal

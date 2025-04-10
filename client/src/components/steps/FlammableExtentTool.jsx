@@ -15,17 +15,17 @@ const FlammableExtentTool = ({
   const [isFlammableExtentLoading, setIsFlammableExtentLoading] = useState(false);
   const [flammableExtentError, setFlammableExtentError] = useState('');
   const [showModelConfirmation, setShowModelConfirmation] = useState(false);
-  const [flammableExtentData, setFlammableExtentData] = useState(null);
   const [showFlammableExtent, setShowFlammableExtent] = useState(false);
+  const [maxDownwindExtent, setMaxDownwindExtent] = useState('');
 
   // Now using getApiUrl from mapUtils
 
   // Effect to show model confirmation when component mounts if no data exists
   useEffect(() => {
-    if (!flammableExtentData && !isFlammableExtentLoading && !showModelConfirmation) {
+    if (!isFlammableExtentLoading && !showFlammableExtent) {
       setShowModelConfirmation(true);
     }
-  }, [flammableExtentData, isFlammableExtentLoading, showModelConfirmation]);
+  }, [isFlammableExtentLoading, showFlammableExtent]);
 
   // Effect to handle confirmation popup escape key
   useEffect(() => {
@@ -70,15 +70,20 @@ const FlammableExtentTool = ({
       
       const data = await response.json();
       
+      updateGuidanceBanner('');
+
       if (data.error) {
-        throw new Error(data.error);
+        updateGuidanceBanner("Error returned from flammable mass calculation: ", data.error);
+      }
+
+      if (data.flam_env_data) {
+        onFlammableExtentData(data.flam_env_data);
+        setShowFlammableExtent(true);
+        setMaxDownwindExtent(data.flam_env_data.maximum_downwind_extent);
+      } else {
+        updateGuidanceBanner("Flammabe envelope data not calculated properly.");
       }
       
-      setFlammableExtentData(data.flam_env_data);
-      setShowFlammableExtent(true);
-      
-      // Pass data to parent component
-      onFlammableExtentData(data.flam_env_data);
       
       // Clear guidance banner
       updateGuidanceBanner('');
@@ -98,13 +103,13 @@ const FlammableExtentTool = ({
 
   return (
     <div className="flammable-extent-info">
-      {flammableExtentData ? (
+      {maxDownwindExtent ? (
         <div className="extent-results">
           <p>Flammable envelope calculated successfully.</p>
           <p>Maximum downwind extent: {
-              flammableExtentData.maximum_downwind_extent === 0 
+              maxDownwindExtent === 0 
                 ? "No flammable extent detected" 
-                : (flammableExtentData.maximum_downwind_extent?.toFixed(2) || "Unknown")
+                : (parseFloat(maxDownwindExtent).toFixed(2) || "Unknown")
                   + " meters."
                   + " The red hatched circle on the map represents the maximum extent of the flammable envelope."
               }
@@ -150,7 +155,7 @@ const FlammableExtentTool = ({
       {/* Flammable Extent Legend */}
       {flammableExtentCircleRef.current && showFlammableExtent && (
         <div className="circle-legend-info flammable-legend-info">
-          Flammable Extent: {flammableExtentData?.maximum_downwind_extent.toFixed(2)}m
+          Flammable Extent: {parseFloat(maxDownwindExtent).toFixed(2)}m
         </div>
       )}
       
