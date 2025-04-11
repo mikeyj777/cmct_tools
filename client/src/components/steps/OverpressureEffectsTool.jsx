@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getApiUrl } from '../../utils/mapUtils';
 
 const apiUrl = getApiUrl();
@@ -15,6 +15,7 @@ const OverpressureEffectsTool = ({
   const [error, setError] = useState(null);
   const [buildingsWithOverpressure, setBuildingsWithOverpressure] = useState([]);
   const [calculationComplete, setCalculationComplete] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const calculateOverpressure = async () => {
     if (!jsonData || !buildings || !congestedVolumes || !flammableExtentData) {
@@ -61,6 +62,7 @@ const OverpressureEffectsTool = ({
       }
 
       setCalculationComplete(true);
+      setIsModalOpen(true);
       updateGuidanceBanner('Overpressure effects calculated successfully!', 'success');
     } catch (err) {
       console.error('Error calculating overpressure effects:', err);
@@ -96,9 +98,36 @@ const OverpressureEffectsTool = ({
         </div>
       )}
 
-      {calculationComplete && buildingsWithOverpressure.length > 0 && (
-        <div className="results-table-container">
-          <h3>Building Overpressure Results</h3>
+      {isModalOpen && (
+        <ResultsModal 
+          buildingsWithOverpressure={buildingsWithOverpressure}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+const ResultsModal = ({ buildingsWithOverpressure, onClose }) => {
+  // Effect to handle escape key press
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="results-modal">
+      <div className="modal-content">
+        <h3>Building Overpressure Results</h3>
+        {buildingsWithOverpressure.length > 0 ? (
           <table className="results-table">
             <thead>
               <tr>
@@ -117,14 +146,15 @@ const OverpressureEffectsTool = ({
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-
-      {calculationComplete && buildingsWithOverpressure.length === 0 && (
-        <div className="info-message">
+        ) : (
           <p>No building data with overpressure results available.</p>
+        )}
+        <div className="modal-buttons">
+          <button className="close-button" onClick={onClose}>
+            Close
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };
