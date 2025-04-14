@@ -6,8 +6,13 @@ import pickle
 import asyncio
 import pandas as pd
 from functools import reduce
-
 from flask import request, jsonify
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+
+from utils.json_data_loader import get_json_file_path
 
 from pypws.calculations import DispersionCalculation, VesselLeakCalculation, JetFireCalculation, RadiationTransectCalculation
 from pypws.entities import FlammableParameters, FlammableOutputConfig, Transect, LocalPosition
@@ -20,12 +25,16 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-async def flammable_envelope():
+async def flammable_envelope(path_to_json_file=None):
 
-    data = request.get_json()
     m_io = Model_Interface()
+    data=None
+    if path_to_json_file is None:
+        data = request.get_json()
+        m_io.set_inputs_from_json(json_data=json.dumps(data))
+    else:
+        m_io.set_inputs_from_json(path_to_json_file=path_to_json_file)
     logging.debug(f'in flammable env method.  data to be modeled in py_lopa:  {data}')
-    m_io.set_inputs_from_json(json_data=json.dumps(data))
     m_io.inputs['vapor_cloud_explosion'] = True
     
     try:
@@ -46,12 +55,17 @@ async def flammable_envelope():
 
         logging.debug(f'data successful.  first few records:  {recs[:min(5, len(recs))]}')
 
-        return jsonify({
+        ans = {
             'flam_env_data':{
                 'flammable_envelope_list_of_dicts' : recs,
                 'maximum_downwind_extent' : max_dist_m,
                 'flash_data' : flash_data,
-            }}), 200
+            }}
+
+        if path_to_json_file is not None:
+            return ans
+
+        return jsonify(ans), 200
 
     except Exception as e:
         logging.debug(f'exception caused from vce endpoint.  error info: {e}')
@@ -90,3 +104,13 @@ def updated_buildings_with_overpressure():
     except Exception as e:
         logging.debug(f'exception caused from building overpressure calculation.  error info: {e}')
         return jsonify({'error': 'Internal Server Error'}), 500
+
+def main():
+    path = get_json_file_path()
+    flam_env_data = asyncio.run(flammable_envelope(path_to_json_file = path))
+    apple = 1
+
+if __name__ == '__main__':
+    main()
+
+    
