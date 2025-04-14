@@ -12,3 +12,4 @@ import and include all other component stylesheets for reference */
 @import './HelpModal.css';
 @import './CmctLauncher.css';
 @import './OverpressureEffectsTool.css';
+@import './FlammableDataViewer.css';

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import L from 'leaflet';
 import ConfirmationPopup from '../ui/ConfirmationPopup';
 import { getApiUrl, createFlammableExtentCircle } from '../../utils/mapUtils';
+import FlammableDataViewer from '../ui/FlammableDataViewer';
 
 const FlammableExtentTool = ({ 
   jsonData, 
@@ -17,6 +18,7 @@ const FlammableExtentTool = ({
   const [showModelConfirmation, setShowModelConfirmation] = useState(false);
   const [showFlammableExtent, setShowFlammableExtent] = useState(false);
   const [maxDownwindExtent, setMaxDownwindExtent] = useState('');
+  const [flammableDataForViewing, setFlammableDataForViewing] = useState(null);
 
   // Now using getApiUrl from mapUtils
 
@@ -80,6 +82,7 @@ const FlammableExtentTool = ({
         onFlammableExtentData(data.flam_env_data);
         setShowFlammableExtent(true);
         setMaxDownwindExtent(data.flam_env_data.maximum_downwind_extent);
+        setFlammableDataForViewing(data.flam_env_data.flammable_envelope_list_of_dicts);
       } else {
         updateGuidanceBanner("Flammabe envelope data not calculated properly.");
       }
@@ -123,6 +126,13 @@ const FlammableExtentTool = ({
               Show Flammable Envelope
             </button>
           )}
+
+          {flammableDataForViewing && (
+            <FlammableDataViewer
+              flammableData={flammableDataForViewing}
+            />
+          )}
+
         </div>
       ) : isFlammableExtentLoading ? (
         <div className="loading-indicator">
