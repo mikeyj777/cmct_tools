@@ -36,6 +36,8 @@ async def flammable_envelope(path_to_json_file=None):
         m_io.set_inputs_from_json(path_to_json_file=path_to_json_file)
     logging.debug(f'in flammable env method.  data to be modeled in py_lopa:  {data}')
     m_io.inputs['vapor_cloud_explosion'] = True
+    m_io.inputs['log_handler'] = logging.debug
+    
     
     try:
         res = m_io.run()
