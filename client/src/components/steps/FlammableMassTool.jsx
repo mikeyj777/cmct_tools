@@ -17,14 +17,6 @@ const FlammableMassTool = ({
   const [isCalculating, setIsCalculating] = useState(false);
   const [currentCalculationIndex, setCurrentCalculationIndex] = useState(null);
 
-  useEffect(() => {
-    if (!congestedVolumes) return
-    if (congestedVolumes.length === 0) return
-
-    console.log("xxx congested volumes in flammable mass tool: ", congestedVolumes)
-
-  }, [congestedVolumes])
-
   // Validate prerequisites before calculation
   const canCalculateMass = () => {
     if (!jsonData) {

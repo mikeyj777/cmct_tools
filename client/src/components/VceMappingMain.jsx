@@ -324,15 +324,6 @@ const VceMappingMain = () => {
     };
   }, [showFlammableExtent, currentReleaseLocation, mapLoaded, flammableExtentCircleRef, mapRef]);
   
-
-  useEffect(() => {
-    console.log("congested volumes have been updated.  here is the latest:  ", congestedVolumes);
-  }, [congestedVolumes])
-
-  useEffect(() => {
-    console.log("buildings updated: ", buildings);
-  }, [buildings])
-
   return (
     <div className="map-container">
       {/* Left Panel */}
@@ -428,6 +419,7 @@ const VceMappingMain = () => {
             {activeStep === 3 && (
               <div className="step-content">
                 <FlammableExtentTool 
+                  currentFlammableExtentData={flammableExtentData}
                   jsonData={jsonData}
                   currentReleaseLocation={currentReleaseLocation}
                   mapState={mapState}
@@ -491,7 +483,6 @@ const VceMappingMain = () => {
                   updateGuidanceBanner={updateGuidanceBanner}
                   onCongestedVolumesUpdate={setCongestedVolumes}
                   onFlammableMassCalculated={(massData) => {
-                    console.log("congested volumes with flammable mass: ", massData);
                     setCongestedVolumes(massData);
                   }}
                 />
@@ -517,8 +508,6 @@ const VceMappingMain = () => {
                   flammableExtentData={flammableExtentData}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
-                    
-                    console.log("updated buildings: ", updatedBuildings);
                     setBuildingsWithOverpressure(updatedBuildings);
                     // You might also want to update your buildings state here
                     // setBuildings(updatedBuildings);

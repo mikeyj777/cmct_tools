@@ -5,6 +5,7 @@ import { getApiUrl, createFlammableExtentCircle } from '../../utils/mapUtils';
 import FlammableDataViewer from '../ui/FlammableDataViewer';
 
 const FlammableExtentTool = ({ 
+  currentFlammableExtentData,
   jsonData, 
   currentReleaseLocation, 
   mapState, 
@@ -24,10 +25,13 @@ const FlammableExtentTool = ({
 
   // Effect to show model confirmation when component mounts if no data exists
   useEffect(() => {
-    if (!isFlammableExtentLoading && !showFlammableExtent) {
+    if (!isFlammableExtentLoading && !showFlammableExtent && !currentFlammableExtentData) {
       setShowModelConfirmation(true);
     }
-  }, [isFlammableExtentLoading, showFlammableExtent]);
+    if (currentFlammableExtentData && currentFlammableExtentData.flammable_envelope_list_of_dicts && currentFlammableExtentData.flammable_envelope_list_of_dicts.length > 0) {
+      setFlammableDataForViewing(currentFlammableExtentData.flammable_envelope_list_of_dicts);
+    }
+  }, [isFlammableExtentLoading, showFlammableExtent, currentFlammableExtentData]);
 
   // Effect to handle confirmation popup escape key
   useEffect(() => {
@@ -106,6 +110,11 @@ const FlammableExtentTool = ({
 
   return (
     <div className="flammable-extent-info">
+      {flammableDataForViewing && (
+        <FlammableDataViewer
+          flammableData={flammableDataForViewing}
+        />
+      )}
       {maxDownwindExtent ? (
         <div className="extent-results">
           <p>Flammable envelope calculated successfully.</p>
@@ -125,12 +134,6 @@ const FlammableExtentTool = ({
             >
               Show Flammable Envelope
             </button>
-          )}
-
-          {flammableDataForViewing && (
-            <FlammableDataViewer
-              flammableData={flammableDataForViewing}
-            />
           )}
 
         </div>
@@ -162,12 +165,6 @@ const FlammableExtentTool = ({
         </div>
       )}
       
-      {/* Flammable Extent Legend */}
-      {flammableExtentCircleRef.current && showFlammableExtent && (
-        <div className="circle-legend-info flammable-legend-info">
-          Flammable Extent: {parseFloat(maxDownwindExtent).toFixed(2)}m
-        </div>
-      )}
       
       {/* Model Confirmation Popup */}
       {showModelConfirmation && (

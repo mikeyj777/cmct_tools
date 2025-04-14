@@ -126,11 +126,6 @@ const RadiationAnalysis = () => {
     }
   }, [plotData]);
 
-  useEffect(() => {
-    if (!peakRadiationData.groundLevel) return
-    console.log("peakRadiationData:  ", peakRadiationData);
-  }, [peakRadiationData])
-
   /**
    * Handle form input changes
    * @param {Event} e - Input change event
@@ -149,7 +144,6 @@ const RadiationAnalysis = () => {
 
   useEffect(() => {
     if (file) {
-      console.log("file name: ", file.name);
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
@@ -165,14 +159,12 @@ const RadiationAnalysis = () => {
   }, [file])
 
   useEffect(() => {
-    console.log("process data:", processData);
     if (file) {
       setCaseNum(prev => prev + 1);
     }
   }, [processData]);
 
   useEffect(() => {
-    console.log("case num: ", caseNum);
     if (!useCache) return;
     if (file) {
       setCache({
@@ -183,7 +175,6 @@ const RadiationAnalysis = () => {
   },[caseNum]);
 
   useEffect(() => {
-    console.log('cache: ', cache);
   }, [cache])
 
   /**
@@ -197,7 +188,6 @@ const RadiationAnalysis = () => {
     setPlotData([]);
     
     try {
-      console.log("cache: ", cache);
       const response = await fetch(`${apiUrl}/api/radiation_analysis`, {
         method: 'POST',
         headers: {
