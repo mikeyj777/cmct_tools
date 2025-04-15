@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {  # This specifically matches your API routes
-        "origins": ["http://localhost:3000", "http://WSSAFER02:8082", "http://localhost:8082", "http://localhost:8082/rad"],
+        "origins": ["http://localhost:3000", "http://WSSAFER02:8082", "http://localhost:8082", "http://WSSAFER02"],
         "methods": ["GET", "POST", "OPTIONS"],  # Explicitly allow methods
         "allow_headers": ["Content-Type"]  # Allow common headers
     }

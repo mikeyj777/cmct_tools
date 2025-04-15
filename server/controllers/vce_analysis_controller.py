@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 from utils.json_data_loader import get_json_file_path
+from utils.log_output import log_to_file
 
 from pypws.calculations import DispersionCalculation, VesselLeakCalculation, JetFireCalculation, RadiationTransectCalculation
 from pypws.entities import FlammableParameters, FlammableOutputConfig, Transect, LocalPosition
@@ -36,7 +37,7 @@ async def flammable_envelope(path_to_json_file=None):
         m_io.set_inputs_from_json(path_to_json_file=path_to_json_file)
     logging.debug(f'in flammable env method.  data to be modeled in py_lopa:  {data}')
     m_io.inputs['vapor_cloud_explosion'] = True
-    m_io.inputs['log_handler'] = logging.debug
+    # m_io.inputs['log_handler'] = log_to_file
     
     
     try:

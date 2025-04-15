@@ -106,9 +106,7 @@ export const getOccupancyClass = (level) => {
 
 // Get API URL based on environment
 export const getApiUrl = () => {
-  let apiUrl = process.env.REACT_APP_API_URL_PROD_CLIENT_BUILD_ON_SERVER;
-  if (process.env.REACT_APP_ENV === "prod") apiUrl = process.env.REACT_APP_API_URL_PROD;
-  if (process.env.REACT_APP_ENV === "dev") apiUrl = process.env.REACT_APP_API_URL_DEV;
+  const apiUrl = process.env.REACT_APP_ENV === "prod" ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL_DEV;
   return apiUrl;
 };
 
