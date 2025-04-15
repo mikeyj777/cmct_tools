@@ -59,7 +59,7 @@ const FlammableExtentTool = ({
     
     // Show loading banner
     updateGuidanceBanner('Calculating flammable envelope. This may take up to two minutes to complete.');
-    
+
     try {
       const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/vce_get_flammable_envelope`, {
