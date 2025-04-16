@@ -534,6 +534,7 @@ const BlastEffectsMain = () => {
               <div className="step-content">
                 <PvBurstEffectsTool
                   jsonData={jsonData}
+                  buildings={buildings}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
                     setBuildings(updatedBuildings);

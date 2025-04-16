@@ -13,11 +13,33 @@ const VceEffectsTool = ({
   updateGuidanceBanner,
   onBuildingsUpdate
 }) => {
+  const [resultData, setResultData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [buildingsWithOverpressure, setBuildingsWithOverpressure] = useState([]);
   const [calculationComplete, setCalculationComplete] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!resultData || !resultData['updatedBuildings']) return;
+
+      const modeledBldgs = resultData['updatedBuildings'];
+
+      const updatedBuildings = buildings.map((curr, idx) => {
+        return {
+          ...curr,
+          max_overpressure_psi: modeledBldgs[idx].max_overpressure_psi
+        }
+      });
+
+      if (onBuildingsUpdate) {
+          onBuildingsUpdate(updatedBuildings);
+      }
+
+      setBuildingsWithOverpressure(updatedBuildings);
+      setIsModalOpen(true);
+
+  }, [resultData]);
 
   const calculateOverpressure = async () => {
     if (!jsonData || !buildings || !congestedVolumes || !flammableExtentData) {
@@ -53,19 +75,10 @@ const VceEffectsTool = ({
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      const resultData = await response.json();
+      setResultData(await response.json());
 
-      // Update buildings with overpressure data
-      setBuildingsWithOverpressure(resultData['updatedBuildings']);
-
-      // Call the parent component's update function
-      if (onBuildingsUpdate) {
-        onBuildingsUpdate(resultData);
-      }
-
-      setCalculationComplete(true);
-      setIsModalOpen(true);
       updateGuidanceBanner('Overpressure effects calculated successfully!', 'success');
+      setCalculationComplete(true);
     } catch (err) {
       console.error('Error calculating overpressure effects:', err);
       setError(`Failed to calculate overpressure effects: ${err.message}`);

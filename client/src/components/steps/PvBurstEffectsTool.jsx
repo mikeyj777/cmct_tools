@@ -8,6 +8,7 @@ const apiUrl = getApiUrl();
 
 const PvBurstEffectsTool = ( {
     jsonData,
+    buildings,
     updateGuidanceBanner,
     onBuildingsUpdate
 }) => {
@@ -21,11 +22,18 @@ const PvBurstEffectsTool = ( {
     useEffect(() => {
         if (!resultData || resultData.length === 0) return;
         
+        const updatedBuildings = buildings.map((curr, idx) => {
+            return {
+                ...curr,
+                pv_burst_overpressure_psi: resultData.bldgs[idx].pv_burst_overpressure_psi
+            }
+        });
+
         if (onBuildingsUpdate) {
-            onBuildingsUpdate(resultData.bldgs);
+            onBuildingsUpdate(updatedBuildings);
         }
 
-        setBldgsWithPvBurstOverpressure(resultData.bldgs);
+        setBldgsWithPvBurstOverpressure(updatedBuildings);
 
         setIsModalOpen(true);
     }, resultData)
