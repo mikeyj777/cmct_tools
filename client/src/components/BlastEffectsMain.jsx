@@ -21,6 +21,7 @@ import {
   createReleaseIcon, 
   getBuildingIcon, 
   getOccupancyText,
+  getOccupancyTextForModal,
   getOccupancyClass,
   initializeMap,
   createFlammableExtentCircle
@@ -123,7 +124,9 @@ const BlastEffectsMain = () => {
         const buildingsWithLocation = jsonData.BuildingInfo.map(building => ({
           ...building,
           location: null, // Will be set when user places the building
-          confirmed: false
+          confirmed: false,
+          name: building.BuildingNumber,
+          occupancy: getOccupancyTextForModal(building.OccupancyLevel)
         }));
         setBuildings(buildingsWithLocation);
       }
@@ -296,7 +299,7 @@ const BlastEffectsMain = () => {
       }
       
       // Only create circle if maximum_downwind_extent is greater than 0
-      if (flammableExtentData.maximum_downwind_extent > 0) {
+      if (flammableExtentData && flammableExtentData.maximum_downwind_extent && flammableExtentData.maximum_downwind_extent > 0) {
         // Create a new flammable extent circle
         const releasePoint = [parseFloat(currentReleaseLocation.lat), parseFloat(currentReleaseLocation.lng)];
         
@@ -509,7 +512,7 @@ const BlastEffectsMain = () => {
                   flammableExtentData={flammableExtentData}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
-                    setBuildingsWithOverpressure(updatedBuildings);
+                    setBuildings(updatedBuildings);
                     // You might also want to update your buildings state here
                     // setBuildings(updatedBuildings);
                   }}
@@ -533,7 +536,7 @@ const BlastEffectsMain = () => {
                   jsonData={jsonData}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
-                    setBuildingsWithOverpressure(updatedBuildings);
+                    setBuildings(updatedBuildings);
                   }}
                 />
               </div>

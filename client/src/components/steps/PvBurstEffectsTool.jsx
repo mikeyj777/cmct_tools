@@ -43,7 +43,7 @@ const PvBurstEffectsTool = ( {
         try {
             setIsLoading(true);
             setError(null);
-            updateGuidanceBanner('Calculating PV Burst effects...', 'info');
+            updateGuidanceBanner('Calculating PV Burst effects.  This may take two minutes to complete.', 'info');
 
             // Make API call to get overpressure results
             const response = await fetch(`${apiUrl}/api/get_pv_burst_results`, {

@@ -94,6 +94,15 @@ export const getOccupancyText = (level) => {
   }
 };
 
+export const getOccupancyTextForModal = (level) => {
+  switch(level) {
+    case 0: return 'low';
+    case 1: return 'med';
+    case 2: return 'high';
+    default: return 'Unknown Occupancy';
+  }
+};
+
 // Helper function to get occupancy level class for styling
 export const getOccupancyClass = (level) => {
   switch(level) {

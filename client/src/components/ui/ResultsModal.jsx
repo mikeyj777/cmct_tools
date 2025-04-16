@@ -2,6 +2,14 @@ import React, {useEffect} from 'react';
 
 const ResultsModal = ({ buildingsWithOverpressure, onClose }) => {
     // Effect to handle escape key press
+    
+    
+    useEffect(() =>{
+      if (!buildingsWithOverpressure || buildingsWithOverpressure.length === 0) return;
+      console.log("Building Info: ", buildingsWithOverpressure);
+    }, [buildingsWithOverpressure])
+    
+
     useEffect(() => {
       const handleEscape = (e) => {
         if (e.key === 'Escape') {
