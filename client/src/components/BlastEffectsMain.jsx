@@ -535,7 +535,7 @@ const BlastEffectsMain = () => {
                   flammableExtentData={flammableExtentData}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
-                    const apple = 1;
+                    setBuildingsWithOverpressure(updatedBuildings);
                   }}
                 />
               </div>

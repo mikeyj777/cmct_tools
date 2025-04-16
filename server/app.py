@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from controllers.rad_analysis_controller import radiation_analysis
-from controllers.vce_analysis_controller import flammable_envelope, flammable_mass, vce_overpressure_results
+from controllers.blast_analysis_controller import flammable_envelope, flammable_mass, vce_overpressure_results, pv_burst_results
 
 import logging
 
@@ -36,5 +36,11 @@ def vce_flammable_mass_route():
 
 @app.route('/api/vce_get_overpressure_results', methods=['POST'])
 def vce_overpressure_route():
-    logging.debug("building overpressure.")
+    logging.debug("vce flask app.")
     return vce_overpressure_results()
+
+@app.route('/api/get_pv_burst_results', methods=['POST'])
+async def pv_burst_overpressure_route():
+    logging.debug("pv burst")
+    return pv_burst_results()
+

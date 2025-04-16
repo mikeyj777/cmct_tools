@@ -107,9 +107,44 @@ def vce_overpressure_results():
         logging.debug(f'exception caused from building overpressure calculation.  error info: {e}')
         return jsonify({'error': 'Internal Server Error'}), 500
 
+def pv_burst_results(path_to_json_file=None):
+
+    m_io = Model_Interface()
+    data=None
+    if path_to_json_file is None:
+        data = request.get_json()
+        m_io.set_inputs_from_json(json_data=json.dumps(data))
+    else:
+        m_io.set_inputs_from_json(path_to_json_file=path_to_json_file)
+    logging.debug(f'in flammable env method.  data to be modeled in py_lopa:  {data}')
+    m_io.inputs['vapor_cloud_explosion'] = False
+    m_io.inputs['pv_burst'] = True
+    m_io.inputs['catastrophic_vessel_failure'] = True
+    m_io.inputs['inhalation'] = False
+
+    try:
+        res = m_io.run()
+        if res != ResultCode.SUCCESS:
+            logging.debug(f'Pv Burst model model did not complete successfully.  Result Code:  {res.name}')
+            return jsonify({'error': 'Internal Server Error'}), 500
+        bldgs = [vars(bldg) for bldg in m_io.mc.mi.bldgs]
+
+        logging.debug(f'pv burst data successful.  bldg results:  {bldgs}')
+
+        ans = {'bldgs': bldgs}
+
+        if path_to_json_file is not None:
+            return ans
+
+        return jsonify(ans), 200
+
+    except Exception as e:
+        logging.debug(f"error with calcuating pv burst consequence: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
+
 def main():
     path = get_json_file_path()
-    flam_env_data = asyncio.run(flammable_envelope(path_to_json_file = path))
+    bldg_data_w_pv_burst_impact = asyncio.run(pv_burst_results(path_to_json_file = path))
     apple = 1
 
 if __name__ == '__main__':
