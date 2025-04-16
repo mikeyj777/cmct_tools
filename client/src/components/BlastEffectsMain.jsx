@@ -10,6 +10,7 @@ import FlammableExtentTool from './steps/FlammableExtentTool';
 import CongestedVolumeIdentifier from './steps/CongestedVolumeIdentifier';
 import FlammableMassTool from './steps/FlammableMassTool';
 import VceEffectsTool from './steps/VceEffectsTool';
+import PvBurstEffectsTool from './steps/PvBurstEffectsTool';
 
 // Import the FileImport component
 import FileImport from './FileImport';
@@ -523,16 +524,13 @@ const BlastEffectsMain = () => {
               className={`step-header ${activeStep === 7 ? 'active' : ''}`} 
               onClick={() => toggleStep(7)}
             >
-              <span>7. Calculate VCE Effects on Buildings</span>
-              <span>{activeStep === 6 ? '−' : '+'}</span>
+              <span>8. Calculate PV Burst Effects on Buildings</span>
+              <span>{activeStep === 7 ? '−' : '+'}</span>
             </div>
-            {activeStep === 6 && (
+            {activeStep === 7 && (
               <div className="step-content">
-                <VceEffectsTool 
+                <PvBurstEffectsTool
                   jsonData={jsonData}
-                  buildings={buildings}
-                  congestedVolumes={congestedVolumes}
-                  flammableExtentData={flammableExtentData}
                   updateGuidanceBanner={updateGuidanceBanner}
                   onBuildingsUpdate={(updatedBuildings) => {
                     setBuildingsWithOverpressure(updatedBuildings);

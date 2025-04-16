@@ -1,8 +1,13 @@
 import React, {useEffect, useState} from 'react';
+import ResultsModal from '../ui/ResultsModal';
+import { getApiUrl } from '../../utils/mapUtils';
+
+
+const apiUrl = getApiUrl();
+
 
 const PvBurstEffectsTool = ( {
     jsonData,
-    buildings,
     updateGuidanceBanner,
     onBuildingsUpdate
 }) => {
@@ -22,13 +27,12 @@ const PvBurstEffectsTool = ( {
 
         setBldgsWithPvBurstOverpressure(resultData.bldgs);
 
-        setCalculationComplete(true);
         setIsModalOpen(true);
     }, resultData)
 
     // request for pv burst calcs using jsonData
     const calculateOverpressure = async () => {
-        if (!jsonData || !buildings) {
+        if (!jsonData) {
             updateGuidanceBanner(
             'Please load JSON data prior to continuing.',
             'error'
@@ -42,7 +46,7 @@ const PvBurstEffectsTool = ( {
             updateGuidanceBanner('Calculating PV Burst effects...', 'info');
 
             // Make API call to get overpressure results
-            const response = await fetch(`${apiUrl}/api/vce_get_overpressure_results`, {
+            const response = await fetch(`${apiUrl}/api/get_pv_burst_results`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -97,7 +101,7 @@ const PvBurstEffectsTool = ( {
             <button
                 className="primary-button"
                 onClick={calculateOverpressure}
-                disabled={isLoading || !buildings || !jsonData}
+                disabled={isLoading || !jsonData}
             >
             {isLoading ? 'Calculating...' : 'Calculate Overpressure Effects'}
             </button>

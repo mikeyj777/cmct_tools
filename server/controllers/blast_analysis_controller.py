@@ -127,7 +127,15 @@ def pv_burst_results(path_to_json_file=None):
         if res != ResultCode.SUCCESS:
             logging.debug(f'Pv Burst model model did not complete successfully.  Result Code:  {res.name}')
             return jsonify({'error': 'Internal Server Error'}), 500
-        bldgs = [vars(bldg) for bldg in m_io.mc.mi.bldgs]
+        bldgs = []
+
+        for bldg in m_io.mc.mi.bldgs:
+            bldgs.append({
+                'name': bldg.num,
+                'occupancy': bldg.occupancy,
+                'dist_m': bldg.dist_m,
+                'pv_burst_overpressure_psi': bldg.pv_burst_overpressure_psi,
+            })
 
         logging.debug(f'pv burst data successful.  bldg results:  {bldgs}')
 

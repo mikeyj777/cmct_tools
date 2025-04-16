@@ -61,12 +61,12 @@ const ResultsModal = ({ buildingsWithOverpressure, onClose }) => {
                         <td>{building.occupancy}</td>
                         <td>
                           {building.max_overpressure_psi
-                            ? building.max_overpressure_psi.toFixed(2)
+                            ? parseFloat(building.max_overpressure_psi).toFixed(2)
                             : 'N/A'}
                         </td>
                         <td>
                           {building.pv_burst_overpressure_psi
-                            ? building.pv_burst_overpressure_psi.toFixed(2)
+                            ? parseFloat(building.pv_burst_overpressure_psi).toFixed(2)
                             : 'N/A'}
                         </td>
                       </tr>
