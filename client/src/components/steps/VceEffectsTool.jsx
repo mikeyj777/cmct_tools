@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react'; import { getApiUrl } from '../../utils/mapUtils';
+import React, { useState, useEffect } from 'react'; 
+import ResultsModal from '../ui/ResultsModal';
+import { getApiUrl } from '../../utils/mapUtils';
+
 
 const apiUrl = getApiUrl();
 
-const OverpressureEffectsTool = ({
+const VceEffectsTool = ({
   jsonData,
   buildings,
   congestedVolumes,
@@ -38,7 +41,7 @@ const OverpressureEffectsTool = ({
       };
 
       // Make API call to get overpressure results
-      const response = await fetch(`${apiUrl}/api/vce_get_building_overpressure_results`, {
+      const response = await fetch(`${apiUrl}/api/vce_get_overpressure_results`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +97,7 @@ const OverpressureEffectsTool = ({
     <div className="overpressure-effects-tool">
       <div className="section-info">
         <p>
-          Calculate the overpressure effects on buildings based on the congested volumes
+          Calculate the vce overpressure effects on buildings based on the congested volumes
           and flammable extent data. This will determine the potential impact on each
           building.
         </p>
@@ -125,87 +128,4 @@ const OverpressureEffectsTool = ({
   );
 };
 
-const ResultsModal = ({ buildingsWithOverpressure, onClose }) => {
-  // Effect to handle escape key press
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-
-    // Prevent scrolling on the background when modal is open
-    const originalStyle = window.getComputedStyle(document.body).overflow;
-    document.body.style.overflow = 'hidden';
-
-    // Cleanup function
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = originalStyle;
-    };
-  }, [onClose]);
-
-  // Handle click outside modal to close it
-  const handleOutsideClick = (e) => {
-    if (e.target.className === 'results-modal-overlay') {
-      onClose();
-    }
-  };
-
-  // Stop propagation for clicks inside modal content
-  const handleModalContentClick = (e) => {
-    e.stopPropagation();
-  };
-
-  return (
-    <div className="results-modal-overlay" onClick={handleOutsideClick}>
-      <div className="results-modal-content" onClick={handleModalContentClick}>
-        <div className="results-modal-header">
-          <h3>Building Overpressure Results</h3>
-          <button className="close-button-icon" onClick={onClose}>×</button>
-        </div>
-
-        <div className="results-modal-body">
-          {buildingsWithOverpressure.length > 0 ? (
-            <div className="table-container">
-              <table className="results-table">
-                <thead>
-                  <tr>
-                    <th>Building Name</th>
-                    <th>Occupancy Level</th>
-                    <th>Max Overpressure (psi)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {buildingsWithOverpressure.map((building, index) => (
-                    <tr key={index}>
-                      <td>{building.name}</td>
-                      <td>{building.occupancy}</td>
-                      <td>
-                        {building.max_overpressure_psi
-                          ? building.max_overpressure_psi.toFixed(2)
-                          : 'N/A'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p>No building data with overpressure results available.</p>
-          )}
-        </div>
-
-        <div className="results-modal-footer">
-          <button className="close-button" onClick={onClose}>
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default OverpressureEffectsTool;
+export default VceEffectsTool;

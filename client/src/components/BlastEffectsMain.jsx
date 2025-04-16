@@ -9,7 +9,7 @@ import BuildingPlacementTool from './steps/BuildingPlacementTool';
 import FlammableExtentTool from './steps/FlammableExtentTool';
 import CongestedVolumeIdentifier from './steps/CongestedVolumeIdentifier';
 import FlammableMassTool from './steps/FlammableMassTool';
-import OverpressureEffectsTool from './steps/OverpressureEffectsTool';
+import VceEffectsTool from './steps/VceEffectsTool';
 
 // Import the FileImport component
 import FileImport from './FileImport';
@@ -34,7 +34,7 @@ fixLeafletDefaultIcon();
 // Get the release icon
 const releaseIcon = createReleaseIcon();
 
-const VceMappingMain = () => {
+const BlastEffectsMain = () => {
   // Map related refs
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
@@ -490,18 +490,18 @@ const VceMappingMain = () => {
             )}
           </div>
 
-          {/* Step 7 - Calculate Overpressure Effects on Buildings */}
+          {/* Step 7 - Calculate VCE Overpressure Effects on Buildings */}
           <div className="step">
             <div 
               className={`step-header ${activeStep === 6 ? 'active' : ''}`} 
               onClick={() => toggleStep(6)}
             >
-              <span>7. Calculate Overpressure Effects on Buildings</span>
+              <span>7. Calculate VCE Effects on Buildings</span>
               <span>{activeStep === 6 ? '−' : '+'}</span>
             </div>
             {activeStep === 6 && (
               <div className="step-content">
-                <OverpressureEffectsTool 
+                <VceEffectsTool 
                   jsonData={jsonData}
                   buildings={buildings}
                   congestedVolumes={congestedVolumes}
@@ -511,6 +511,31 @@ const VceMappingMain = () => {
                     setBuildingsWithOverpressure(updatedBuildings);
                     // You might also want to update your buildings state here
                     // setBuildings(updatedBuildings);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Step 8 - Calculate PV Burst Effects on Buildings */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 7 ? 'active' : ''}`} 
+              onClick={() => toggleStep(7)}
+            >
+              <span>7. Calculate VCE Effects on Buildings</span>
+              <span>{activeStep === 6 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 6 && (
+              <div className="step-content">
+                <VceEffectsTool 
+                  jsonData={jsonData}
+                  buildings={buildings}
+                  congestedVolumes={congestedVolumes}
+                  flammableExtentData={flammableExtentData}
+                  updateGuidanceBanner={updateGuidanceBanner}
+                  onBuildingsUpdate={(updatedBuildings) => {
+                    const apple = 1;
                   }}
                 />
               </div>
@@ -603,4 +628,4 @@ const VceMappingMain = () => {
   );
 };
 
-export default VceMappingMain;
+export default BlastEffectsMain;

@@ -20,10 +20,10 @@ const CmctLauncher = () => {
       path: '/rad'
     },
     {
-      id: 'vce',
-      name: 'VCE MAPPER',
-      fullName: 'VCE MAPPER',
-      path: '/vce'
+      id: 'blast',
+      name: 'EXPLOSIONS',
+      fullName: 'BLAST EFFECTS',
+      path: '/blast'
     },
     {
       id: 'evap',
