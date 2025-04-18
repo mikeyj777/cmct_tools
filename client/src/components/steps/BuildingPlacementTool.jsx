@@ -23,7 +23,7 @@ const BuildingPlacementTool = ({
   
   // Initialize building placement workflow
   useEffect(() => {
-    if (mapLoaded && buildings.length > 0 && currentReleaseLocation) {
+    if (mapLoaded && buildings && buildings.length > 0 && currentReleaseLocation) {
       // If we're in initial placement mode and have buildings left to place
       if (isInitialPlacement) {
         startBuildingPlacement(currentBuildingIndex);
