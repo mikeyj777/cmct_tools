@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { sum } from '../../utils/helpers';
 
 const StoichiometricRatioTool = ({ 
   flammableExtentData,
@@ -48,16 +49,28 @@ const StoichiometricRatioTool = ({
       }
 
       // Get the mole fractions from flash_data.ys
-      const moleFractions = flammableExtentData.flash_data.ys || [];
-
+      let moleFractions = flammableExtentData.flash_data.ys || [];
+      
       if (moleFractions.length !== chemicals.length) {
         setError('Mole fraction data does not match chemical components');
         return;
       }
 
+      if (sum(moleFractions) === 0) {
+        moleFractions = flammableExtentData.flash_data.k_times_zi;
+        if (sum(moleFractions) !== 0) {
+          const totalMolfs = sum(moleFractions);
+          moleFractions = moleFractions.map(mole => mole / totalMolfs);
+        }
+      }
+
       // Calculate weighted average of stoichiometric O2 requirement
       let totalStoichO2 = 0;
       let totalMoleFraction = 0;
+
+      console.log('Stoichiometric Ratios:', stoichRatios);
+      console.log('Mole Fractions:', moleFractions);
+      console.log('Chemicals:', chemicals);
 
       chemicals.forEach((chem, index) => {
         const stoichRatio = parseFloat(stoichRatios[chem]);
@@ -155,7 +168,10 @@ const StoichiometricRatioTool = ({
           >
             Calculate Ratio
           </button>
-          <button className="ok-button" onClick={handleClose}>
+          <button 
+            className="ok-button" 
+            onClick={handleClose}
+            disabled={!calculatedRatio}>
             Use This Value & Close
           </button>
         </div>
