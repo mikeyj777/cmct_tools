@@ -49,7 +49,7 @@ const StoichiometricRatioTool = ({
 
       // Get the mole fractions from flash_data.ys
       const moleFractions = flammableExtentData.flash_data.ys || [];
-      
+
       if (moleFractions.length !== chemicals.length) {
         setError('Mole fraction data does not match chemical components');
         return;
