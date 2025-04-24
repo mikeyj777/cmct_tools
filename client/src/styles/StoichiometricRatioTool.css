@@ -1,0 +1,137 @@
+/* StoichiometricRatioTool.css */
+.stoich-ratio-modal {
+  max-width: 600px;
+}
+
+.stoich-ratio-modal h3 {
+  margin-top: 0;
+  color: #1e40af;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stoich-ratio-description {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.stoich-ratio-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+}
+
+.stoich-ratio-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stoich-ratio-table th {
+  background-color: #f3f4f6;
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.stoich-ratio-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stoich-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.stoich-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.calculated-ratio {
+  background-color: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.ratio-value {
+  background-color: #dbeafe;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: #1e40af;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  color: #b91c1c;
+  font-size: 0.875rem;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Override form-buttons from parent CSS to ensure proper layout */
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.primary-button {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background-color: #2563eb;
+}
+
+.primary-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.ok-button {
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.ok-button:hover {
+  background-color: #059669;
+}

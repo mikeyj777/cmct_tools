@@ -1,0 +1,151 @@
+/* FlammableMassTool.css */
+.flammable-mass-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.stoichiometric-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  font-weight: 500;
+}
+
+.stoichiometric-inputs {
+  margin-left: 1.5rem;
+  padding: 0.75rem;
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  border-left: 3px solid #3b82f6;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.oxygen-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.oxygen-input-container label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.oxygen-input {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.oxygen-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+.stoich-identify-button {
+  padding: 0.5rem 0.75rem;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.stoich-identify-button:hover {
+  background-color: #4f46e5;
+}
+
+.calculate-mass-button {
+  padding: 0.75rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.calculate-mass-button:hover {
+  background-color: #2563eb;
+}
+
+.calculate-mass-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.volume-mass-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+
+.volume-mass-item {
+  padding: 0.75rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.volume-name {
+  font-weight: 500;
+}
+
+.mass-value {
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: #1e40af;
+}
+
+.error-text {
+  color: #b91c1c;
+  font-size: 0.875rem;
+}

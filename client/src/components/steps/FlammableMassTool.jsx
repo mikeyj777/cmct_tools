@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateVolumeExtents } from '../../utils/geospatial';
 import { getApiUrl } from '../../utils/mapUtils';
+import StoichiometricRatioTool from '../ui/StoichiometricRatioTool';
 
 const apiUrl = getApiUrl();
 
@@ -18,6 +19,7 @@ const FlammableMassTool = ({
   const [currentCalculationIndex, setCurrentCalculationIndex] = useState(null);
   const [useStoichiometricOxygen, setUseStoichiometricOxygen] = useState(false);
   const [molesOfOxygen, setMolesOfOxygen] = useState('');
+  const [showStoichTool, setShowStoichTool] = useState(false);
 
   // Validate prerequisites before calculation
   const canCalculateMass = () => {
@@ -42,6 +44,12 @@ const FlammableMassTool = ({
     }
 
     return true;
+  };
+
+  // Handle stoichiometric ratio calculation
+  const handleStoichCalculation = (calculatedRatio) => {
+    setMolesOfOxygen(calculatedRatio);
+    updateGuidanceBanner('Stoichiometric ratio calculated successfully', 'success');
   };
 
   // Sequential mass calculation to prevent overwhelming the server
@@ -149,29 +157,61 @@ const FlammableMassTool = ({
     }
   };
 
+  const toggleStoichiometricOxygen = (e) => {
+    const checked = e.target.checked;
+    setUseStoichiometricOxygen(checked);
+    
+    // Reset moles of oxygen when unchecking
+    if (!checked) {
+      setMolesOfOxygen('');
+    }
+  };
+
+  // Check if flash data is available for stoichiometric calculations
+  const hasFlashData = flammableExtentData && 
+                       flammableExtentData.flash_data && 
+                       flammableExtentData.flash_data.chem_mix_names &&
+                       flammableExtentData.flash_data.chem_mix_names.length > 0;
+
   return (
     <div className="flammable-mass-container">
       
-      <label>
-        <input
-          type="checkbox"
-          checked={useStoichiometricOxygen}
-          onChange={(e) => setUseStoichiometricOxygen(e.target.checked)}
-        />
-        Use Stoichiometric Oxygen
-      </label>
-      {useStoichiometricOxygen && (
-        <div>
-          <label>
-            Enter the moles of oxygen per mole of fuel:
-            <input
-              type="number"
-              value={molesOfOxygen}
-              onChange={(e) => setMolesOfOxygen(e.target.value)}
-            />
-          </label>
-        </div>
-      )}
+      <div className="stoichiometric-controls">
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={useStoichiometricOxygen}
+            onChange={toggleStoichiometricOxygen}
+          />
+          <span>Use Stoichiometric Oxygen</span>
+        </label>
+        
+        {useStoichiometricOxygen && (
+          <div className="stoichiometric-inputs">
+            <div className="oxygen-input-container">
+              <label>
+                Moles of oxygen per mole of fuel:
+                <input
+                  type="number"
+                  value={molesOfOxygen}
+                  onChange={(e) => setMolesOfOxygen(e.target.value)}
+                  className="oxygen-input"
+                  placeholder="Enter value"
+                />
+              </label>
+            </div>
+            
+            {hasFlashData && (
+              <button 
+                className="stoich-identify-button"
+                onClick={() => setShowStoichTool(true)}
+              >
+                Identify Stoichiometric Ratios for Components
+              </button>
+            )}
+          </div>
+        )}
+      </div>
 
       <button 
         onClick={calculateFlammableMassSequentially}
@@ -187,15 +227,24 @@ const FlammableMassTool = ({
         <div className="volume-mass-list">
           {calculatedVolumes.map((volume, index) => (
             <div key={volume.id} className="volume-mass-item">
-              <span>Volume {index + 1}</span>
+              <span className="volume-name">Volume {index + 1}</span>
               {volume.flammableMassG !== null ? (
-                <span>Flammable Mass: {volume.flammableMassG.toFixed(2)} g</span>
+                <span className="mass-value">Flammable Mass: {volume.flammableMassG.toFixed(2)} g</span>
               ) : (
-                <span className="error">{volume.flammableMassError || 'Mass Calculation Failed'}</span>
+                <span className="error-text">{volume.flammableMassError || 'Mass Calculation Failed'}</span>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {/* Stoichiometric Ratio Tool Modal */}
+      {showStoichTool && (
+        <StoichiometricRatioTool
+          flammableExtentData={flammableExtentData}
+          onStoichCalculation={handleStoichCalculation}
+          onClose={() => setShowStoichTool(false)}
+        />
       )}
     </div>
   );
