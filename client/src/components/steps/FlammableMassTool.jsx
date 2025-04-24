@@ -16,6 +16,8 @@ const FlammableMassTool = ({
   const [calculatedVolumes, setCalculatedVolumes] = useState([]);
   const [isCalculating, setIsCalculating] = useState(false);
   const [currentCalculationIndex, setCurrentCalculationIndex] = useState(null);
+  const [useStoichiometricOxygen, setUseStoichiometricOxygen] = useState(false);
+  const [molesOfOxygen, setMolesOfOxygen] = useState('');
 
   // Validate prerequisites before calculation
   const canCalculateMass = () => {
@@ -92,7 +94,9 @@ const FlammableMassTool = ({
               yMax,
               zMin,
               zMax,
-              flammable_envelope_list_of_dicts: flammableExtentData.flammable_envelope_list_of_dicts
+              flammable_envelope_list_of_dicts: flammableExtentData.flammable_envelope_list_of_dicts,
+              flash_data: flammableExtentData.flash_data,
+              stoich_mol_o2_to_mol_fuel: useStoichiometricOxygen ? molesOfOxygen : null
             })
           });
 
@@ -147,6 +151,28 @@ const FlammableMassTool = ({
 
   return (
     <div className="flammable-mass-container">
+      
+      <label>
+        <input
+          type="checkbox"
+          checked={useStoichiometricOxygen}
+          onChange={(e) => setUseStoichiometricOxygen(e.target.checked)}
+        />
+        Use Stoichiometric Oxygen
+      </label>
+      {useStoichiometricOxygen && (
+        <div>
+          <label>
+            Enter the moles of oxygen per mole of fuel:
+            <input
+              type="number"
+              value={molesOfOxygen}
+              onChange={(e) => setMolesOfOxygen(e.target.value)}
+            />
+          </label>
+        </div>
+      )}
+
       <button 
         onClick={calculateFlammableMassSequentially}
         disabled={isCalculating}

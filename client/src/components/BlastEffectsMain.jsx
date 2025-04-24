@@ -170,15 +170,15 @@ const BlastEffectsMain = () => {
         // Center map on user's position
         mapRef.current.setView([latitude, longitude], 15);
         
-        // Add or update marker
-        if (markerRef.current) {
-          markerRef.current.setLatLng([latitude, longitude]);
-        } else {
-          markerRef.current = L.marker([latitude, longitude])
-            .addTo(mapRef.current)
-            .bindPopup('Your location')
-            .openPopup();
-        }
+        // // Add or update marker
+        // if (markerRef.current) {
+        //   markerRef.current.setLatLng([latitude, longitude]);
+        // } else {
+        //   markerRef.current = L.marker([latitude, longitude])
+        //     .addTo(mapRef.current)
+        //     .bindPopup('Your location')
+        //     .openPopup();
+        // }
         
         setLocationStatus('Location found!');
         setTimeout(() => setLocationStatus(''), 2000);
@@ -223,16 +223,16 @@ const BlastEffectsMain = () => {
       mapRef.current.setView([lat, lon], 15);
       
       // Add or update marker
-      if (markerRef.current) {
-        markerRef.current.setLatLng([lat, lon])
-          .setPopupContent(display_name)
-          .openPopup();
-      } else {
-        markerRef.current = L.marker([lat, lon])
-          .addTo(mapRef.current)
-          .bindPopup(display_name)
-          .openPopup();
-      }
+      // if (markerRef.current) {
+      //   markerRef.current.setLatLng([lat, lon])
+      //     .setPopupContent(display_name)
+      //     .openPopup();
+      // } else {
+      //   markerRef.current = L.marker([lat, lon])
+      //     .addTo(mapRef.current)
+      //     .bindPopup(display_name)
+      //     .openPopup();
+      // }
       
       setSearchStatus('Location found!');
       setTimeout(() => setSearchStatus(''), 2000);
