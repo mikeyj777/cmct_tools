@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Home.css';
 
 /**
  * Home component - C64-style launcher for consequence modeling tools
@@ -11,6 +10,14 @@ const CmctLauncher = () => {
   const navigate = useNavigate();
   const [hoveredApp, setHoveredApp] = useState('FLARE STACK SIZING');
   
+  useEffect(() => {
+    document.body.classList.add('launcher-page');
+    
+    return () => {
+      document.body.classList.remove('launcher-page');
+    };
+  }, []);
+
   // Program definitions with routing paths
   const programs = [
     {
@@ -30,6 +37,12 @@ const CmctLauncher = () => {
       name: 'LAB HOOD',
       fullName: 'LAB HOOD EVAPORATION',
       path: '/evap'
+    },
+    {
+      id: 'csv',
+      name: 'DATA VIEWER',
+      fullName: 'CSV DATA VISUALIZER',
+      path: '/csv'
     }
   ];
   
