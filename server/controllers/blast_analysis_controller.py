@@ -88,7 +88,7 @@ def flammable_mass():
 
     vce = VCE()
     try:
-        resp = vce.get_flammable_mass(x_min, x_max, y_min, y_max, z_min, z_max, flammable_envelope_list_of_dicts, stoich_mol_o2_to_mol_fuel, flash_data)
+        resp = vce.get_flammable_mass(x_min, x_max, y_min, y_max, z_min, z_max, flammable_envelope_list_of_dicts = flammable_envelope_list_of_dicts, cv = None, stoich_moles_o2_to_fuel = stoich_mol_o2_to_mol_fuel, flash_data = flash_data)
         return jsonify({'flammable_mass_g':resp['flammable_mass_g']}), 200
     except Exception as e:
         logging.debug(f'exception caused from flammable mass endpoint.  error info: {e}')

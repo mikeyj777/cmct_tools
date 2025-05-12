@@ -4,7 +4,7 @@ import { sum } from '../../utils/helpers';
 const StoichiometricRatioTool = ({ 
   flammableExtentData,
   onStoichCalculation,
-  onClose
+  onClose,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [chemicals, setChemicals] = useState([]);
@@ -28,6 +28,22 @@ const StoichiometricRatioTool = ({
       setError('Flash data not available or invalid');
     }
   }, [flammableExtentData]);
+
+  
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        handleClose();
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+  
 
   const handleInputChange = (chemical, value) => {
     setStoichRatios(prev => ({
@@ -59,6 +75,7 @@ const StoichiometricRatioTool = ({
       if (sum(moleFractions) === 0) {
         moleFractions = flammableExtentData.flash_data.k_times_zi;
         if (sum(moleFractions) !== 0) {
+          const mws = flammableExtentData.flash_data.mws;
           const totalMolfs = sum(moleFractions);
           moleFractions = moleFractions.map(mole => mole / totalMolfs);
         }
@@ -67,11 +84,7 @@ const StoichiometricRatioTool = ({
       // Calculate weighted average of stoichiometric O2 requirement
       let totalStoichO2 = 0;
       let totalMoleFraction = 0;
-
-      console.log('Stoichiometric Ratios:', stoichRatios);
-      console.log('Mole Fractions:', moleFractions);
-      console.log('Chemicals:', chemicals);
-
+      
       chemicals.forEach((chem, index) => {
         const stoichRatio = parseFloat(stoichRatios[chem]);
         const moleFraction = parseFloat(moleFractions[index]);

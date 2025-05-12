@@ -46,6 +46,10 @@ const FlammableMassTool = ({
     return true;
   };
 
+  useEffect(() => {
+    setMolesOfOxygen(parseFloat(molesOfOxygen));
+  }, [molesOfOxygen]);
+
   // Handle stoichiometric ratio calculation
   const handleStoichCalculation = (calculatedRatio) => {
     setMolesOfOxygen(calculatedRatio);
@@ -104,7 +108,7 @@ const FlammableMassTool = ({
               zMax,
               flammable_envelope_list_of_dicts: flammableExtentData.flammable_envelope_list_of_dicts,
               flash_data: flammableExtentData.flash_data,
-              stoich_mol_o2_to_mol_fuel: useStoichiometricOxygen ? molesOfOxygen : null
+              stoich_mol_o2_to_mol_fuel: useStoichiometricOxygen ? parseFloat(molesOfOxygen) : null
             })
           });
 
