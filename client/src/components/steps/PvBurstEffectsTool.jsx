@@ -18,6 +18,7 @@ const PvBurstEffectsTool = ( {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [resultData, setResultData] = useState(null);
+    const [jsonDataForModeling, setJsonDataForModeling] = useState(null);
     
     useEffect(() => {
         if (!resultData || resultData.length === 0) return;
@@ -38,9 +39,18 @@ const PvBurstEffectsTool = ( {
         setIsModalOpen(true);
     }, resultData)
 
+    useEffect(() => {
+        const currentJsonData = {...jsonData};
+        currentJsonData.BuildingInfo = [...buildings];
+        setJsonDataForModeling(() => {
+            return currentJsonData;
+        });
+
+    }, [jsonData]);
+
     // request for pv burst calcs using jsonData
     const calculateOverpressure = async () => {
-        if (!jsonData) {
+        if (!jsonDataForModeling) {
             updateGuidanceBanner(
             'Please load JSON data prior to continuing.',
             'error'
@@ -59,7 +69,7 @@ const PvBurstEffectsTool = ( {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(jsonData),
+                body: JSON.stringify(jsonDataForModeling),
             });
 
             if (!response.ok) {

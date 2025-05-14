@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import L from 'leaflet';
 import ConfirmationPopup from '../ui/ConfirmationPopup';
 import { getOccupancyClass, createDistanceCircle } from '../../utils/mapUtils';
+import { haversineDistance } from '../../utils/geospatial';
+
 
 const BuildingPlacementTool = ({ 
   jsonData, 
@@ -105,8 +107,10 @@ const BuildingPlacementTool = ({
       lng: tempBuildingPosition.lng
     };
     currentBuilding.confirmed = true;
+    currentBuilding.DistanceFromRelease = haversineDistance(currentReleaseLocation.lat, currentReleaseLocation.lng, currentBuilding.location.lat, currentBuilding.location.lng);
     
     updatedBuildings[currentBuildingIndex] = currentBuilding;
+
     onBuildingsUpdate(updatedBuildings);
     
     // Add or update the building marker on the map
@@ -138,8 +142,10 @@ const BuildingPlacementTool = ({
             location: {
               lat: position.lat,
               lng: position.lng
-            }
+            },
+            DistanceFromRelease: haversineDistance(currentReleaseLocation.lat, currentReleaseLocation.lng, position.lat, position.lng),
           };
+          
           onBuildingsUpdate(updatedBuildings);
         }
       });

@@ -6,7 +6,6 @@ const ResultsModal = ({ buildingsWithOverpressure, onClose }) => {
     
     useEffect(() =>{
       if (!buildingsWithOverpressure || buildingsWithOverpressure.length === 0) return;
-      console.log("Building Info: ", buildingsWithOverpressure);
     }, [buildingsWithOverpressure])
     
 
