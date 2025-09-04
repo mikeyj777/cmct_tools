@@ -43,6 +43,12 @@ const CmctLauncher = () => {
       name: 'DATA VIEWER',
       fullName: 'CSV DATA VISUALIZER',
       path: '/csv'
+    },
+    {
+      id: 'disp',
+      name: 'DISP TEST',
+      fullName: 'DISPERSION TESTER',
+      path: '/disp'
     }
   ];
   
