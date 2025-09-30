@@ -151,7 +151,7 @@ const ClosestChemicals = () => {
   return (
     <div className="container">
       <header>
-        <h1>Find closest chemicals (nbp_deg_k, mw, loc_3, lel, flash_point_deg_k)</h1>
+        <h1>Find closest chemicals</h1>
         <p className="lead">Enter one or more fields. NBP and Flash Point inputs are in °C.</p>
       </header>
 
@@ -184,7 +184,7 @@ const ClosestChemicals = () => {
           </div>
 
           <div className="field">
-            <label htmlFor="loc3Input">ERPG-3 (loc_3)</label>
+            <label htmlFor="loc3Input">ERPG-3 (ppm)</label>
             <input
               id="loc3Input"
               name="loc3"
@@ -197,7 +197,7 @@ const ClosestChemicals = () => {
           </div>
 
           <div className="field">
-            <label htmlFor="lelInput">LFL (ppm) (lel)</label>
+            <label htmlFor="lelInput">LFL (ppm)</label>
             <input
               id="lelInput"
               name="lel"
@@ -251,7 +251,7 @@ const ClosestChemicals = () => {
                     <th>Chem Name</th>
                     <th style={{ textAlign: 'right' }}>NBP (°C)</th>
                     <th style={{ textAlign: 'right' }}>MWT</th>
-                    <th style={{ textAlign: 'right' }}>ERPG-3</th>
+                    <th style={{ textAlign: 'right' }}>ERPG-3 (ppm) </th>
                     <th style={{ textAlign: 'right' }}>LFL (ppm)</th>
                     <th style={{ textAlign: 'right' }}>Flash Point (°C)</th>
                   </tr>
