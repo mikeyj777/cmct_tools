@@ -6,13 +6,22 @@ import {
   toNum,
   formatNumber,
   escapeHtml,
-  findColumnByPattern
+  celsiusToKelvin,
+  kelvinToCelsius,
+  computeNormalizedDistances
 } from '../utils/helpers';
 
-// Component: ClosestChemicals
+// Component: ClosestChemicals (search by any combination of nbp_deg_k, mw, loc_3, lel, flash_point_deg_k)
+// - User enters NBP and Flash Point in °C (converted to K for matching)
+// - Displays NBP and Flash Point in °C in output
 const ClosestChemicals = () => {
-  const [nbpInput, setNbpInput] = useState('');
-  const [mwtInput, setMwtInput] = useState('');
+  // input strings (allow empty)
+  const [nbpC, setNbpC] = useState('');
+  const [mw, setMw] = useState('');
+  const [loc3, setLoc3] = useState('');
+  const [lel, setLel] = useState('');
+  const [flashC, setFlashC] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]); // array of records
   const [error, setError] = useState('');
@@ -26,20 +35,30 @@ const ClosestChemicals = () => {
     e.preventDefault();
     resetStatus();
 
-    const nbpVal = toNum(nbpInput);
-    const mwtVal = toNum(mwtInput);
-    if (!Number.isFinite(nbpVal) || !Number.isFinite(mwtVal)) {
-      setError('Please enter valid numeric values for both NBP and molecular weight.');
+    // Prepare query object. Convert temperatures from °C to K when present.
+    const query = {};
+    const nbpCnum = toNum(nbpC);
+    const flashCnum = toNum(flashC);
+    const mwnum = toNum(mw);
+    const loc3num = toNum(loc3);
+    const lelnum = toNum(lel);
+
+    if (Number.isFinite(nbpCnum)) query['nbp_deg_k'] = celsiusToKelvin(nbpCnum);
+    if (Number.isFinite(flashCnum)) query['flash_point_deg_k'] = celsiusToKelvin(flashCnum);
+    if (Number.isFinite(mwnum)) query['mw'] = mwnum;
+    if (Number.isFinite(loc3num)) query['loc_3'] = loc3num;
+    if (Number.isFinite(lelnum)) query['lel'] = lelnum;
+
+    // Require at least one query value
+    if (Object.keys(query).length === 0) {
+      setError('Please enter at least one search value (NBP, MWT, ERPG-3, LFL, or Flash Point).');
       return;
     }
 
     setLoading(true);
-
     try {
-      const resp = await fetch('data/cheminfo_with_nbp.csv');
-      if (!resp.ok) {
-        throw new Error(`Could not fetch CSV: ${resp.status} ${resp.statusText}`);
-      }
+      const resp = await fetch('data/cheminfo_with_nbp_and_fp.csv');
+      if (!resp.ok) throw new Error(`Could not fetch CSV: ${resp.status} ${resp.statusText}`);
       const text = await resp.text();
       const rows = parseCSV(text);
       if (!rows || rows.length < 2) throw new Error('CSV appears empty or malformed.');
@@ -47,145 +66,167 @@ const ClosestChemicals = () => {
       const header = rows[0].map(h => h.trim());
       const idx = headerIndexMap(header);
 
-      // Try find NBP and MW columns by pattern, fallbacks as in original script
-      const nbpColName = findColumnByPattern(header, ['nbp','deg','k'])
-        || findColumnByPattern(header, ['nbp'])
-        || findColumnByPattern(header, ['nbp','k']);
+      // Ensure required exact columns exist in header for mapping; we will ignore missing columns when collecting records.
+      // We expect CSV columns names exactly: nbp_deg_k, mw, loc_3, lel, flash_point_deg_k, cas_no, chem_name
 
-      let mwtColName = findColumnByPattern(header, ['mw'])
-        || findColumnByPattern(header, ['molecular','weight'])
-        || 'mw';
-
-      const nameColName = findColumnByPattern(header, ['chem','name'])
-        || findColumnByPattern(header, ['name'])
-        || 'chem_name';
-      const casColName = findColumnByPattern(header, ['cas']) || 'cas_no';
-      const lelColName = 'lel';
-
-      if (!nbpColName || !(nbpColName in idx)) {
-        // try last column if it looks like nbp
-        const last = header[header.length - 1];
-        if (last && last.toLowerCase().includes('nbp')) {
-          idx['nbp_guess'] = header.length - 1;
-          console.warn('Using last column as nbp:', last);
-        } else {
-          throw new Error('NBP column not found in CSV header. Expected a column with "nbp" and "k" in the name (e.g. nbp_deg_k). Found header: ' + header.join(', '));
+      const requiredCols = ['cas_no','chem_name','nbp_deg_k','mw','loc_3','lel','flash_point_deg_k'];
+      // But we will not fail if some optional columns are missing; only cas_no and chem_name are helpful
+      // Check whether at least the numeric columns used in query exist in header
+      for (const qk of Object.keys(query)) {
+        if (!(qk in idx)) {
+          throw new Error(`CSV is missing required column "${qk}". CSV must contain exact column names: nbp_deg_k, mw, loc_3, lel, flash_point_deg_k`);
         }
       }
 
-      if (!(mwtColName in idx)) {
-        if ('mw' in idx) {
-          // ok
-        } else {
-          let found = null;
-          for (const k of header) {
-            const kk = k.toLowerCase();
-            if (kk === 'mw' || kk.includes('mw') || (kk.includes('molecular') && kk.includes('weight'))) { found = k; break; }
-          }
-          if (found) mwtColName = found;
-          else throw new Error('Molecular weight column not found in CSV header. Expected "mw" or something like "molecular weight". Found header: ' + header.join(', '));
-        }
-      }
-
-      const nbpIndex = (nbpColName in idx) ? idx[nbpColName] : idx['nbp_guess'];
-      const mwtIndex = idx[mwtColName];
-      const nameIndex = (nameColName in idx) ? idx[nameColName] : (header.indexOf('chem_name') !== -1 ? header.indexOf('chem_name') : 0);
-      const casIndex = (casColName in idx) ? idx[casColName] : (header.indexOf('cas_no') !== -1 ? header.indexOf('cas_no') : -1);
-      const lelIndex = (lelColName in idx) ? idx[lelColName] : -1;
-
-      // Collect usable records
+      // Build records: ensure numeric values for fields present
       const records = [];
-      for (let r = 1; r < rows.length; r++){
+      for (let r = 1; r < rows.length; r++) {
         const row = rows[r];
         if (!row) continue;
-        const nbpNum = toNum(row[nbpIndex]);
-        const mwtNum = toNum(row[mwtIndex]);
-        const chemName = (row[nameIndex] !== undefined) ? row[nameIndex] : '';
-        const casNum = (casIndex >= 0 && row[casIndex] !== undefined) ? row[casIndex] : '';
-        const lelNum = (lelIndex >= 0 && row[lelIndex] !== undefined) ? row[lelIndex] : '';
-        if (Number.isFinite(nbpNum) && Number.isFinite(mwtNum)) {
-          records.push({ nbp: nbpNum, mwt: mwtNum, name: chemName, cas: casNum, lel: lelNum, rowIndex: r });
+
+        // read numeric values only for the expected columns; if missing or NaN then set NaN
+        const rec = {
+          rowIndex: r,
+          cas_no: (idx.cas_no !== undefined && row[idx.cas_no] !== undefined) ? row[idx.cas_no] : '',
+          chem_name: (idx.chem_name !== undefined && row[idx.chem_name] !== undefined) ? row[idx.chem_name] : ''
+        };
+
+        // numeric fields
+        const nbpK = (idx.nbp_deg_k !== undefined) ? toNum(row[idx.nbp_deg_k]) : NaN;
+        const mwVal = (idx.mw !== undefined) ? toNum(row[idx.mw]) : NaN;
+        const loc3Val = (idx.loc_3 !== undefined) ? toNum(row[idx.loc_3]) : NaN;
+        const lelVal = (idx.lel !== undefined) ? toNum(row[idx.lel]) : NaN;
+        const flashK = (idx.flash_point_deg_k !== undefined) ? toNum(row[idx.flash_point_deg_k]) : NaN;
+
+        // store using exact property names used by computeNormalizedDistances
+        rec['nbp_deg_k'] = nbpK;
+        rec['mw'] = mwVal;
+        rec['loc_3'] = loc3Val;
+        rec['lel'] = lelVal;
+        rec['flash_point_deg_k'] = flashK;
+
+        // Only include records that have at least one numeric value for any queried key
+        let usable = false;
+        for (const qk of Object.keys(query)) {
+          if (Number.isFinite(rec[qk])) { usable = true; break; }
         }
+        if (usable) records.push(rec);
       }
 
-      if (records.length === 0) throw new Error('No usable records with numeric NBP and molecular weight were found.');
+      if (records.length === 0) throw new Error('No usable records with numeric values matching provided fields were found.');
 
-      // compute min/max ranges
-      let nbpMin = Infinity, nbpMax = -Infinity, mwtMin = Infinity, mwtMax = -Infinity;
-      records.forEach(rec => {
-        if (rec.nbp < nbpMin) nbpMin = rec.nbp;
-        if (rec.nbp > nbpMax) nbpMax = rec.nbp;
-        if (rec.mwt < mwtMin) mwtMin = rec.mwt;
-        if (rec.mwt > mwtMax) mwtMax = rec.mwt;
-      });
+      // keys to consider are exactly the keys present in query
+      const keys = Object.keys(query);
 
-      const nbpRange = (nbpMax - nbpMin) || Math.max(1, Math.abs(nbpMin));
-      const mwtRange = (mwtMax - mwtMin) || Math.max(1, Math.abs(mwtMin));
+      // compute normalized distances (function divides by per-key ranges and averages)
+      computeNormalizedDistances(records, query, keys);
 
-      records.forEach(rec => {
-        const dN = (rec.nbp - nbpVal) / nbpRange;
-        const dM = (rec.mwt - mwtVal) / mwtRange;
-        rec.distance = Math.sqrt(dN*dN + dM*dM);
-        rec.dNBP = rec.nbp - nbpVal;
-        rec.dMWT = rec.mwt - mwtVal;
-      });
-
+      // sort by distance
       records.sort((a,b) => a.distance - b.distance);
 
-      const top = records.slice(0,20);
-      setResults(top);
+      // take top 20
+      const top = records.slice(0, 20);
+
+      // For display, convert temperatures (nbp_deg_k and flash_point_deg_k) to °C
+      const displayRows = top.map(r => ({
+        cas_no: r.cas_no,
+        chem_name: r.chem_name,
+        nbp_C: Number.isFinite(r.nbp_deg_k) ? kelvinToCelsius(r.nbp_deg_k) : NaN,
+        mw: r.mw,
+        loc_3: r.loc_3,
+        lel: r.lel,
+        flash_C: Number.isFinite(r.flash_point_deg_k) ? kelvinToCelsius(r.flash_point_deg_k) : NaN,
+        distance: r.distance
+      }));
+
+      setResults(displayRows);
     } catch (err) {
-        setError(err.message || String(err));
-        console.error(err);
+      setError(err.message || String(err));
+      console.error(err);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="container">
       <header>
-        <h1>Find closest chemicals by NBP (K) and Molecular Weight</h1>
-        <p className="lead">Enter a normal boiling point (nbp, in K) and a molecular weight (g·mol⁻¹). The tool will find the 20 records in data/cheminfo_with_nbp.csv with nbp and mwt closest to your input.</p>
+        <h1>Find closest chemicals (nbp_deg_k, mw, loc_3, lel, flash_point_deg_k)</h1>
+        <p className="lead">Enter one or more fields. NBP and Flash Point inputs are in °C.</p>
       </header>
 
       <div className="card">
         <form className="form-row" onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="nbpInput">NBP (deg K)</label>
+            <label htmlFor="nbpInput">NBP (°C)</label>
             <input
               id="nbpInput"
               name="nbp"
               type="number"
               step="any"
-              min="-273.15"
-              required
-              placeholder="e.g. 350"
-              value={nbpInput}
-              onChange={(e) => setNbpInput(e.target.value)}
+              placeholder="e.g. 77 (°C)"
+              value={nbpC}
+              onChange={(e) => setNbpC(e.target.value)}
             />
           </div>
 
           <div className="field">
-            <label htmlFor="mwtInput">Molecular weight (g·mol⁻¹)</label>
+            <label htmlFor="mwInput">Molecular weight (mw)</label>
             <input
-              id="mwtInput"
-              name="mwt"
+              id="mwInput"
+              name="mw"
               type="number"
               step="any"
-              min="0"
-              required
               placeholder="e.g. 180.16"
-              value={mwtInput}
-              onChange={(e) => setMwtInput(e.target.value)}
+              value={mw}
+              onChange={(e) => setMw(e.target.value)}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="loc3Input">ERPG-3 (loc_3)</label>
+            <input
+              id="loc3Input"
+              name="loc3"
+              type="number"
+              step="any"
+              placeholder="e.g. 5"
+              value={loc3}
+              onChange={(e) => setLoc3(e.target.value)}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="lelInput">LFL (ppm) (lel)</label>
+            <input
+              id="lelInput"
+              name="lel"
+              type="number"
+              step="any"
+              placeholder="e.g. 1000"
+              value={lel}
+              onChange={(e) => setLel(e.target.value)}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="flashInput">Flash Point (°C)</label>
+            <input
+              id="flashInput"
+              name="flash"
+              type="number"
+              step="any"
+              placeholder="e.g. 25 (°C)"
+              value={flashC}
+              onChange={(e) => setFlashC(e.target.value)}
             />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'flex-end' }}>
             <button id="findBtn" type="submit" disabled={loading}>
-              {loading ? 'Loading CSV...' : 'Find closest 20'}
+              {loading ? 'Searching...' : 'Find closest 20'}
             </button>
-            <div className="small muted">CSV path: <code>data/cheminfo_with_nbp.csv</code></div>
+            <div className="small muted">CSV path: <code>data/cheminfo_with_nbp_and_fp.csv</code></div>
           </div>
         </form>
 
@@ -193,37 +234,39 @@ const ClosestChemicals = () => {
           {error && <div className="error" role="alert">{error}</div>}
 
           {!error && results.length === 0 && !loading && (
-            <div className="muted" style={{ marginTop: 10 }}>
-              No results yet. Enter values above and click "Find closest 20".
-            </div>
+            <div className="muted" style={{ marginTop: 10 }}>No results yet. Enter values above and click "Find closest 20".</div>
           )}
 
           {!error && results.length > 0 && (
             <>
               <div className="small muted">
-                Showing {results.length} closest matches to NBP = {nbpInput} K and MWT = {mwtInput} g·mol⁻¹ (sorted by combined normalized distance)
+                Showing {results.length} closest matches (sorted by combined normalized distance)
               </div>
 
               <table aria-label="Closest chemicals table">
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Chemical name</th>
-                    <th>CAS #</th>
-                    <th style={{ textAlign: 'right' }}>NBP (K)</th>
-                    <th style={{ textAlign: 'right' }}>MW (g·mol⁻¹)</th>
-                    <th style={{ textAlign: 'right' }}>LFL (ppm)</th>
+                    <th>CAS No</th>
+                    <th>Chem Name</th>
+                    <th style={{ textAlign: 'right' }}>NBP (°C)</th>
+                    <th style={{ textAlign: 'right' }}>MWT (mw)</th>
+                    <th style={{ textAlign: 'right' }}>ERPG-3 (loc_3)</th>
+                    <th style={{ textAlign: 'right' }}>LFL (ppm) (lel)</th>
+                    <th style={{ textAlign: 'right' }}>Flash Point (°C)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((r, i) => (
+                {results.map((r, i) => (
                     <tr key={i}>
                       <td>{i+1}</td>
-                      <td>{escapeHtml(r.name || '')}</td>
-                      <td>{escapeHtml(r.cas || '')}</td>
-                      <td style={{ textAlign: 'right' }}>{formatNumber(r.nbp)}</td>
-                      <td style={{ textAlign: 'right' }}>{formatNumber(r.mwt)}</td>
-                      <td style={{ textAlign: 'right' }}>{r.lel}</td>
+                      <td>{escapeHtml(r.cas_no || '')}</td>
+                      <td>{escapeHtml(r.chem_name || '')}</td>
+                      <td style={{ textAlign: 'right' }}>{Number.isFinite(r.nbp_C) ? formatNumber(r.nbp_C) : ''}</td>
+                      <td style={{ textAlign: 'right' }}>{Number.isFinite(r.mw) ? formatNumber(r.mw) : ''}</td>
+                      <td style={{ textAlign: 'right' }}>{Number.isFinite(r.loc_3) ? formatNumber(r.loc_3) : ''}</td>
+                      <td style={{ textAlign: 'right' }}>{Number.isFinite(r.lel) ? formatNumber(r.lel) : ''}</td>
+                      <td style={{ textAlign: 'right' }}>{Number.isFinite(r.flash_C) ? formatNumber(r.flash_C) : ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -233,7 +276,8 @@ const ClosestChemicals = () => {
         </div>
 
         <div className="note">
-          Important: The CSV must be accessible via the server at the path above (same origin). If you're testing locally, run a simple local web server (for example: <code>python -m http.server</code>) from the folder that contains the public files and the data/ folder.
+          Important: CSV must contain exact column names: nbp_deg_k, mw, loc_3, lel, flash_point_deg_k, cas_no, chem_name.
+          NBP and Flash Point inputs are in °C and are converted to K for internal matching; displayed results show °C.
         </div>
       </div>
     </div>
@@ -241,3 +285,4 @@ const ClosestChemicals = () => {
 };
 
 export default ClosestChemicals;
+
