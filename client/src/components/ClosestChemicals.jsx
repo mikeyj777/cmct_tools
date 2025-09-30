@@ -250,9 +250,9 @@ const ClosestChemicals = () => {
                     <th>CAS No</th>
                     <th>Chem Name</th>
                     <th style={{ textAlign: 'right' }}>NBP (°C)</th>
-                    <th style={{ textAlign: 'right' }}>MWT (mw)</th>
-                    <th style={{ textAlign: 'right' }}>ERPG-3 (loc_3)</th>
-                    <th style={{ textAlign: 'right' }}>LFL (ppm) (lel)</th>
+                    <th style={{ textAlign: 'right' }}>MWT</th>
+                    <th style={{ textAlign: 'right' }}>ERPG-3</th>
+                    <th style={{ textAlign: 'right' }}>LFL (ppm)</th>
                     <th style={{ textAlign: 'right' }}>Flash Point (°C)</th>
                   </tr>
                 </thead>
