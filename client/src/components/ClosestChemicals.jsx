@@ -226,7 +226,7 @@ const ClosestChemicals = () => {
             <button id="findBtn" type="submit" disabled={loading}>
               {loading ? 'Searching...' : 'Find closest 20'}
             </button>
-            <div className="small muted">CSV path: <code>data/cheminfo_with_nbp_and_fp.csv</code></div>
+            <div className="small muted">Click above to find the closest matching chemicals</div>
           </div>
         </form>
 
