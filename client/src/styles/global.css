@@ -16,3 +16,4 @@ import and include all other component stylesheets for reference */
 @import './FlammableMassTool.css';
 @import './StoichiometricRatioTool.css';
 @import './CsvDataViewer.css';
+@import './ClosestChemicals.css';

@@ -49,6 +49,12 @@ const CmctLauncher = () => {
       name: 'DISP TEST',
       fullName: 'DISPERSION TESTER',
       path: '/disp'
+    },
+    {
+      id: 'similar-chemical',
+      name: 'SIMILAR CHEM',
+      fullName: 'SIMILAR CHEMICAL FINDER',
+      path: '/similar-chemical'
     }
   ];
   

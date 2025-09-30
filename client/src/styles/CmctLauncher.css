@@ -154,6 +154,13 @@ html, body, #root {
   background-size: contain;
 }
 
+.icon-similar-chemical {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90"><defs><filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="%23000000" flood-opacity="0.12"/></filter></defs><rect width="90" height="90" fill="none"/><!-- bonds --><line x1="30" y1="34" x2="50" y2="18" stroke="%2399a1a6" stroke-width="4" stroke-linecap="round" filter="url(%23s)"/><line x1="50" y1="18" x2="70" y2="34" stroke="%2399a1a6" stroke-width="4" stroke-linecap="round" filter="url(%23s)"/><line x1="30" y1="56" x2="50" y2="72" stroke="%2399a1a6" stroke-width="4" stroke-linecap="round" filter="url(%23s)"/><line x1="50" y1="72" x2="70" y2="56" stroke="%2399a1a6" stroke-width="4" stroke-linecap="round" filter="url(%23s)"/><!-- central bond connectors --><line x1="38" y1="42" x2="62" y2="58" stroke="%23b0cffa" stroke-width="2" stroke-linecap="round" stroke-opacity="0.9"/><!-- nodes (atoms) --><circle cx="50" cy="18" r="8" fill="%231f78d1" stroke="%2321333a" stroke-width="1"/><circle cx="30" cy="34" r="7" fill="%23ffb74d" stroke="%2321333a" stroke-width="1"/><circle cx="70" cy="34" r="7" fill="%23ffd54f" stroke="%2321333a" stroke-width="1"/><circle cx="30" cy="56" r="7" fill="%2390f0ff" stroke="%2321333a" stroke-width="1"/><circle cx="70" cy="56" r="7" fill="%23b0b0ff" stroke="%2321333a" stroke-width="1"/><circle cx="50" cy="72" r="8" fill="%2322c55e" stroke="%2321333a" stroke-width="1"/><!-- subtle grid / grounding shape --><path d="M12,78 L78,78" stroke="%23e9eef8" stroke-width="1" stroke-linecap="round" stroke-opacity="0.9"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
 /* ====== Banner Styles ====== */
 .launcher-page .c64-banner {
   background-color: #00354a;

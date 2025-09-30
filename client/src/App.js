@@ -5,7 +5,8 @@ import BlastEffectsMain from './components/BlastEffectsMain';
 import EvaporationCalculator from './components/EvaporationCalculator';
 import CmctLauncher from './components/CmctLauncher';
 import CsvDataVisualizer from './components/csv_data_visualizer/CsvDataVisualizer';
-import DispersionTester from './components/DispersionTester'
+import DispersionTester from './components/DispersionTester';
+import ClosestChemicals from './components/ClosestChemicals';
 import './App.css';
 import './styles/global.css';
 
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/evap" element={<EvaporationCalculator />} />
           <Route path="/csv" element={<CsvDataVisualizer />} />
           <Route path="/disp" element={<DispersionTester />} />
+          <Route path="/similar-chemical" element={<ClosestChemicals />} />
         </Routes>
       </div>
     </Router>
