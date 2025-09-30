@@ -171,7 +171,7 @@ const ClosestChemicals = () => {
           </div>
 
           <div className="field">
-            <label htmlFor="mwInput">Molecular weight (mw)</label>
+            <label htmlFor="mwInput">Molecular weight</label>
             <input
               id="mwInput"
               name="mw"
