@@ -224,7 +224,7 @@ const ClosestChemicals = () => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'flex-end' }}>
             <button id="findBtn" type="submit" disabled={loading}>
-              {loading ? 'Searching...' : 'Find closest 20'}
+              {loading ? 'Searching...' : 'Search'}
             </button>
             <div className="small muted">Click above to find the closest matching chemicals</div>
           </div>
