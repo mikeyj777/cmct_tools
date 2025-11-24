@@ -231,6 +231,8 @@ const CongestedVolumeIdentifier = ({
   
   // Function to save congested volume data
   const saveVolumeData = (formData) => {
+    console.log("distance in save volume data: ", currentDistance);
+    
     if (!clickPosition) return;
     
     const newVolume = {
@@ -278,7 +280,7 @@ const CongestedVolumeIdentifier = ({
     if (volume) {
       setActiveVolumeId(volumeId);
       setEditingVolume(volume);
-      setClickPosition(L.latLng(volume.position.lat, volume.position.lng));
+      // setClickPosition(L.latLng(volume.position.lat, volume.position.lng));
       setShowForm(true);
     }
   };
@@ -328,7 +330,9 @@ const CongestedVolumeIdentifier = ({
                   {volume.isIndoors && <span className="indoors-tag">Indoors or Between Concrete Deck Floors</span>}
                 </div>
                 <div className="volume-distance">
-                  {volume.distance.toFixed(2)}m
+                  
+                  {/* {console.log("volume: " + Object.entries(volume))} */}
+                  {volume.distance.toFixed(2) }m
                 </div>
               </div>
             );

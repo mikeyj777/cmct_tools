@@ -19,6 +19,7 @@ from pypws.calculations import DispersionCalculation, VesselLeakCalculation, Jet
 from pypws.entities import FlammableParameters, FlammableOutputConfig, Transect, LocalPosition
 from pypws.enums import ContourType, ResultCode
 
+from py_lopa.calcs import helpers
 from py_lopa.model_interface import Model_Interface
 from py_lopa.classes.vce import VCE
 
@@ -86,6 +87,7 @@ def flammable_mass():
     flash_data = data['flash_data']
     stoich_mol_o2_to_mol_fuel = data['stoich_mol_o2_to_mol_fuel']
 
+    
     vce = VCE()
     try:
         resp = vce.get_flammable_mass(x_min, x_max, y_min, y_max, z_min, z_max, flammable_envelope_list_of_dicts = flammable_envelope_list_of_dicts, cv = None, stoich_moles_o2_to_fuel = stoich_mol_o2_to_mol_fuel, flash_data = flash_data)
