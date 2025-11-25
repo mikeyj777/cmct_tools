@@ -1,0 +1,135 @@
+
+C:\cmct_tools\server>c:
+
+C:\cmct_tools\server>c:\cmct_tools\server\venv\scripts\python -u "c:\cmct_tools\server\run.py" 
+
+********
+
+Initiating model sequence.  Current time in UTC 2025-11-24 22:51:26.987529+00:00
+
+
+
+
+
+Initiating Flash Calculation
+Operation ID: 9ae3068780e2918db5189d7cc3938600
+
+
+
+Flash did not complete correctly.
+vds.  requested phase: LET_MODEL_DECIDE | flash result phase: VAPOUR
+mc.  after system checks.  fluid phase is VAPOUR.
+vessel definition:  {'location': <pypws.entities.LocalPosition object at 0x000001D5FC1902C0>, 'state': <pypws.entities.State object at 0x000001D584874830>, 'material': <pypws.entities.Material object at 0x000001D58694FA70>, 'safety_system': <pypws.entities.SafetySystem object at 0x000001D5FC190320>, 'diameter': 2.642972881047856, 'height': 2.642972881047856, 'length': 4, 'width': 2.0, 'shape': <VesselShape.VERTICAL_CYLINDER: 1>, 'vessel_conditions': <VesselConditions.PURE_GAS: 1>, 'liquid_fill_fraction_by_volume': 0}
+
+**********
+
+Initiating Model: Discharge Calculation.
+
+Model: Discharge Calculation.
+Runtime: 1.072973 sec
+Current time: 2025-11-24 22:51:31.817823+00:00UTC
+Operation ID: 822ac7687b7b557fe5e1f984491b5f56
+Status: Completed OK.
+
+AREA_FOR_POPULATION_BASIS:  None
+AVAILABLE_POOL_AREA_M2:  inf
+CATASTROPHIC_VESSEL_FAILURE:  False
+CHEM_MIX:  ['1333-74-0', '630-08-0']
+COMPOSITION:  [0.55, 0.45]
+COMPOSITION_IS_IN_MOLES:  True
+CONSEQUENCE_DISTS:  {'dist_to_offsite_m': 200.0, 'max_dist_m': 609.5999804928007, 'min_dist_m': 88.87, 'max_height_m': 562.0}
+DATA_FOR_FLOW_BASED_EVALUATION:  {'discharge_temp_deg_c': -70.67102519391466, 'discharge_press_psig': -1.7763568394002505e-15, 'estimate_mass_flow_lb_hr': 996178.9109637488, 'discharge_phase': 'VAPOR'}
+DESCRIPTION:  None
+DISPLAY_DIAGNOSTIC_INFORMATION:  True
+DNV_BENCHMARK:  False
+DNV_BENCHMARK_SPECS:  None
+DOWNSTREAM_ESTIMATE_DISCHARGE_IDEAL_FLASH_CALC_ON_EXIT_MATERIAL:  {'flash_data': {'chem_mix': ['1333-74-0', '630-08-0'], 'chem_mix_names': ['HYDROGEN', 'CARBON MONOXIDE'], 'temp_k': 202.47897480608532, 'press_pa': 101325, 'vf': 1, 'xs': [0.0, 0.0], 'ys': [0.55, 0.45], 'overall_vapor_mass_fraction': 1, 'vpress_data': [53873866195769.04, 42857609.63355999], 'ks': [100, 100], 'overall_molfs': [0.55, 0.45], 'mws': [2.01588, 28.0101], 'k_times_zi': [55.00000000000001, 45.0], 'ave_mw_vap': 13.713279000000002}, 'vap_molfs': [0.55, 0.45], 'discharge_temp_c': -70.67102519391466, 'discharge_press_psig': -1.7763568394002505e-15, 'adjusted_temp_c': -70.67102519391466}
+DOWNSTREAM_PWS_DISCHARGE_RESULT_INITIAL:  {'time': 0.0, 'mass_flow': 125.51658070624275, 'final_state': <pypws.entities.State object at 0x000001D58787F920>, 'final_velocity': 900.912260593522, 'orifice_state': <pypws.entities.State object at 0x000001D58787FE60>, 'orifice_velocity': 538.9455297930449, 'storage_state': <pypws.entities.State object at 0x000001D58787FBF0>, 'droplet_diameter': 0.0, 'expanded_diameter': 0.46362279168279225}
+DOWNSTREAM_PWS_DISCHARGE_RESULT_INITIAL_STATE:  {'pressure': 101325.0, 'temperature': 202.47897480608532, 'liquid_fraction': 0.0, 'flash_flag': <FluidSpec.TP: 1>, 'mixture_modelling': <MixtureModelling.MC_SINGLE_AEROSOL: 1>}
+ESTIMATE_MASS_FLOW_KG_S:  125.51658070624275
+ESTIMATE_MASS_FLOW_LB_HR:  996178.9109637488
+EXIT_VAPOR_MASS_FRACTION:  None
+FLASH_FIRE:  True
+FLUID_SPEC:  fluid_spec
+FULL_TEST:  False
+GET_PHAST_DISCHARGE_ONLY:  False
+GOOGLE_EARTH_OUTPUT_ALLOWED_TO_FLOAT:  False
+INHALATION:  False
+JET_FIRE_ANALYSIS:  False
+JET_FIRE_ONLY:  False
+KML_HANDLER:  <built-in function print>
+LOG_HANDLER:  <built-in function print>
+MAWP_PA:  None
+MAX_HOLE_SZ_M:  0.14985999520448018
+MAX_RELEASE_DURATION_MIN:  None
+OFFSITE_DIST:  200.0
+ONSITE_CATEGORY_IMPACT_AREA_M2:  {'minor': 10000.0, 'moderate': 10000.0, 'serious': 10000.0, 'critical': 40000.0, 'catastrophic': 320000.0}
+ONSITE_CATEGORY_IMPACT_AREA_M2_NIGHT:  {'minor': 10000.0, 'moderate': 10000.0, 'serious': 10000.0, 'critical': 40000.0, 'catastrophic': 320000.0}
+ONSITE_EVAL_CONC_FOOTPRINT_ELEVATIONS:  [0, 2.6, 3.0, 6]
+PERSONNEL_PER_10K_M2:  1.0
+PERSONNEL_PER_10K_M2_NIGHT:  1.0
+PERSONNEL_WORKING_AT_ELEVATION_NEAR_RELEASE_POINT:  False
+PRESS_PA:  5901344.261207004
+PRODUCTION_AREA_ACH:  None
+PV_BURST:  False
+QUICK_TEST:  False
+RELEASE_ANGLE_DEGREES_FROM_HORIZONTAL:  0.0
+RELEASE_ELEVATION_M:  2.6
+RELEASE_INDOORS:  False
+RELEASE_LATITUDE_DEGREE_DECIMAL:  65.033608
+RELEASE_LONGITUDE_DEGREE_DECIMAL:  25.521877
+RELIEF_CALC_AVAILABLE:  False
+RELIEF_CALC_RATE_KG_S:  None
+RELIEF_PHASE:  LET_MODEL_DECIDE
+RESTRICT_VAPOR_CLOUD_SPREAD_TO_POP_BASIS_AREA:  False
+ROOM_VENT_DIAMETER_IN:  None
+ROOM_VENT_ELEVATION_M:  None
+ROOM_VENT_RELEASE_ANGLE_DEGREES_FROM_HORIZONTAL:  None
+ROOM_VOL_M3:  None
+STORAGE_MASS_KG:  346.9334769624638
+STORAGE_VOLUME_M3:  14.5
+TEMP_K:  393.15
+UPSTREAM_FLASH_RESULT:  {'pressure': 5901344.261207004, 'temperature': 393.15, 'liquid_mole_fraction': 0.0, 'liquid_density': -9.95e+36, 'vapour_density': 23.92644668706647, 'liquid_entropy': -9.95e+36, 'vapour_entropy': -8460.897545504478, 'liquid_enthalpy': -9.95e+36, 'vapour_enthalpy': 205015.50558487626, 'bubble_point_pressure': 50365144.52804436, 'bubble_point_temperature': 78.554294341854, 'dew_point_pressure': 39305690.33499472, 'dew_point_temperature': 131.370899730021, 'total_fluid_density': 23.92644668706647, 'liquid_mass_fraction': 0.0, 'fluid_phase': <Phase.VAPOUR: 1>}
+UPSTREAM_FLUID_PHASE_FROM_PWS_FLASH_CALC:  VAPOUR
+USE_DOSE_AND_PROBIT:  False
+USE_MULTICOMPONENT_METHOD:  True
+USE_ONE_MET_CONDITION_WORST_CASE:  False
+USE_VESSEL_OVERPRESSURE_METHODOLOGY:  False
+VALID_HAZARDS:  {'flash_fire': True, 'inhalation': False, 'vapor_cloud_explosion': True, 'pv_burst': False}
+VAPOR_CLOUD_EXPLOSION:  True
+VERSION_PY_LOPA:  1.3.9
+VERSION_PY_PWS:  4.2.9
+id_string:  chems: ['1333-74-0', '630-08-0']
+press: 841.2188804418653 psig
+temp: 120 deg C
+hole size: 5.9 in
+
+inputs:  {'chemical_mix': ['1333-74-0', '630-08-0'], 'composition': [0.55, 0.45], 'comp_is_moles': True, 'max_hole_size_in': 5.900000000000001, 'pressure_psig': 841.2188804418653, 'temp_deg_c': 120.0, 'release_elevation_m': 2.6, 'inhalation': False, 'flash_fire': True, 'use_one_met_condition_worst_case': False, 'bldg_nums_low_med_high': ['Water purification plant (DEMI-water) Vesilaitos', 'Käyttölaboratorio - Täällä myös AL', 'Pytinki'], 'bldg_dists_low_med_high': [88.87, 163.99, 556.0], 'bldg_hts_low_med_high': [1.0, 3.0, 8.0], 'bldg_ach_low_med_high': [10.0, 10.0, 10.0], 'bldg_nighttime_occupancy': [0, 0, 0], 'bldg_hvac_shutoff_min_low_med_high': [60.0, 60.0, 60.0], 'offsite_dist_m': 200.0, 'relief_phase': 'let_model_decide', 'relief_calc_available': False, 'relief_calc_rate_lb_hr': None, 'catastrophic_vessel_failure': False, 'storage_volume_m3': 14.5, 'storage_mass_kg': None, 'release_angle_degrees_from_horizontal': 0.0, 'personnel_per_10k_m2': 1.0, 'personnel_per_10k_m2_night': 1.0, 'release_indoors': False, 'available_pool_area_m2': inf, 'release_latitude_degree_decimal': 65.033608, 'release_longitude_degree_decimal': 25.521877, 'personnel_working_at_elevation_near_release_point': False, 'log_handler': <built-in function print>, 'kml_handler': <built-in function print>, 'display_diagnostic_information': True, 'room_vol_m3': None, 'production_area_ach': None, 'room_vent_diameter_in': None, 'room_vent_elevation_m': None, 'room_vent_release_angle_degrees_from_horizontal': None, 'exit_vapor_mass_fraction': None, 'full_test': False, 'quick_test': False, 'use_multicomponent_method': True, 'use_dose_and_probit': False, 'vapor_cloud_explosion': True, 'dnv_benchmark': False, 'description': None, 'dnv_benchmark_specs': None, 'jet_fire_analysis': False, 'jet_fire_only': False, 'pv_burst': False, 'max_release_duration_min': None, 'get_phast_discharge_only': False, 'mawp_psig': None, 'use_vessel_overpressure_methodology': False, 'area_for_population_basis': None, 'restrict_vapor_cloud_spread_to_pop_basis_area': False, 'google_earth_output_allowed_to_float': False}
+Building Water purification plant (DEMI-water) Vesilaitos:  distance: 88.87 meters.  height: 1.0 meters.  day occ: low.  night occ: unoccupied. ACH: 10.0. Time to shut off HVAC: 60.0 min.
+Building Käyttölaboratorio - Täällä myös AL:  distance: 163.99 meters.  height: 3.0 meters.  day occ: med.  night occ: unoccupied. ACH: 10.0. Time to shut off HVAC: 60.0 min.
+Building Pytinki:  distance: 556.0 meters.  height: 8.0 meters.  day occ: high.  night occ: unoccupied. ACH: 10.0. Time to shut off HVAC: 60.0 min.
+
+vds.  requested phase: LET_MODEL_DECIDE | flash result phase: VAPOUR
+The volume specified by user, 14.5 m3, is less than the amount which will be released in 60 minutes.
+The model will be updated to analyze the user-specified volume.
+
+***
+
+Initiating Model:  Dispersion
+***Weather Condition:  day.
+Hazard Type: flash_fire.
+Model: Dispersion.
+Release Duration: 1 min.
+Runtime: 3.202297 sec.
+Current time: 2025-11-24 22:51:35.229839+00:00 UTC.
+Operation ID: 6e122cc5a9442d3b1cabb568d00dbb78
+Status: Completed OK.
+
+
+
+
+***
+
+Initiating Model:  VCE Flammable Envelope
+Model run successful.  run time: 0:00:28.416748 sec
+VCE flammable envelope model completed OK

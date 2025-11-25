@@ -1,0 +1,13 @@
+from a promoted command prompt (with admin rights), run each of the following commands:
+
+C:\nssm-2.24\win64\nssm.exe stop Cmct_Tools_Server
+C:\nssm-2.24\win64\nssm.exe remove Cmct_Tools_Server
+C:\nssm-2.24\win64\nssm.exe install Cmct_Tools_Server
+
+note, the above command will open an interface.  direct direct it to C:\cmct_tools\load_service_for_cmct_tools.bat, then click "Install"
+
+c:\nssm-2.24\win64\nssm set Cmct_Tools_server AppDirectory C:\cmct_tools\server
+c:\nssm-2.24\win64\nssm set Cmct_Tools_server AppStdout C:\cmct_tools\server\logs\stdout.log
+c:\nssm-2.24\win64\nssm set Cmct_Tools_server AppStderr C:\cmct_tools\server\logs\stderr.log
+
+C:\nssm-2.24\win64\nssm.exe start Cmct_Tools_Server
