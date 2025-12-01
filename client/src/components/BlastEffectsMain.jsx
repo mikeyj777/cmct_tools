@@ -11,6 +11,9 @@ import CongestedVolumeIdentifier from './steps/CongestedVolumeIdentifier';
 import FlammableMassTool from './steps/FlammableMassTool';
 import VceEffectsTool from './steps/VceEffectsTool';
 import PvBurstEffectsTool from './steps/PvBurstEffectsTool';
+import DistanceToOverpressuresVce from './steps/DistanceToOverpressuresVce';
+import OverpressureDistancesResultsModal from './ui/OverpressureDistancesResultsModal';
+
 
 // Import the FileImport component
 import FileImport from './FileImport';
@@ -67,6 +70,10 @@ const BlastEffectsMain = () => {
   const [showFlammableExtent, setShowFlammableExtent] = useState(false);
   const [congestedVolumes, setCongestedVolumes] = useState([]);
   const [buildingsWithOverpressure, setBuildingsWithOverpressure] = useState([]);
+  const [showVceDistancesModal, setShowVceDistancesModal] = useState(false);
+  const [showVceDistancesResults, setShowVceDistancesResults] = useState(false);
+  // Optional: store last psi values to seed modal
+  const [lastPsiValues, setLastPsiValues] = useState([0.5, 1, 2]);
   
   // Initialize the map
   useEffect(() => {
@@ -327,6 +334,17 @@ const BlastEffectsMain = () => {
       }
     };
   }, [showFlammableExtent, currentReleaseLocation, mapLoaded, flammableExtentCircleRef, mapRef]);
+
+  // When congestedVolumes update after calculations, open the results modal
+  useEffect(() => {
+    // If the input modal just closed and we have volumes with distances, show results
+    if (!showVceDistancesModal && congestedVolumes?.length > 0) {
+      const anyWithDistances = congestedVolumes.some(v => v.overpressureDistances || v.overpressureDistancesError);
+      if (anyWithDistances) {
+        setShowVceDistancesResults(true);
+      }
+    }
+  }, [showVceDistancesModal, congestedVolumes]);
   
   return (
     <div className="map-container">
@@ -521,16 +539,46 @@ const BlastEffectsMain = () => {
             )}
           </div>
 
-          {/* Step 8 - Calculate PV Burst Effects on Buildings */}
+          {/* Step 8 - Get distances to overpressure limits for VCE */}
           <div className="step">
-            <div 
-              className={`step-header ${activeStep === 7 ? 'active' : ''}`} 
-              onClick={() => toggleStep(7)}
+            <div
+              className={`step-header ${activeStep === 7 ? 'active' : ''}`} // This becomes the new step 8 visually (0-based index => index 7)
+              onClick={() => {
+                if (!showVceDistancesModal) {
+                  // Toggle the accordion normally
+                  toggleStep(7);
+                }
+              }}
             >
-              <span>8. Calculate PV Burst Effects on Buildings</span>
+              <span>8. Identify distances to overpressure limits for VCE</span>
               <span>{activeStep === 7 ? '−' : '+'}</span>
             </div>
             {activeStep === 7 && (
+              <div className="step-content">
+                <button
+                  className="primary-button"
+                  onClick={() => setShowVceDistancesModal(true)}
+                  disabled={showVceDistancesModal}
+                >
+                  Set Overpressure Values
+                </button>
+                <p className="info-message" style={{ marginTop: '0.5rem' }}>
+                  Calculates distances (meters) to the specified overpressure thresholds for each congested volume.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Step 9 - Calculate PV Burst Effects on Buildings */}
+          <div className="step">
+            <div 
+              className={`step-header ${activeStep === 8 ? 'active' : ''}`} 
+              onClick={() => toggleStep(8)}
+            >
+              <span>9. Calculate PV Burst Effects on Buildings</span>
+              <span>{activeStep === 8 ? '−' : '+'}</span>
+            </div>
+            {activeStep === 8 && (
               <div className="step-content">
                 <PvBurstEffectsTool
                   jsonData={jsonData}
@@ -626,6 +674,33 @@ const BlastEffectsMain = () => {
         {/* Map container */}
         <div className="map-area" ref={mapContainerRef} />
       </div>
+
+      {showVceDistancesModal && (
+        <DistanceToOverpressuresVce
+          isOpen={showVceDistancesModal}
+          onClose={() => setShowVceDistancesModal(false)}
+          jsonData={jsonData}
+          flammableExtentData={flammableExtentData}
+          currentReleaseLocation={currentReleaseLocation}
+          congestedVolumes={congestedVolumes}
+          updateGuidanceBanner={updateGuidanceBanner}
+          onCongestedVolumesUpdate={(vols) => {
+            setCongestedVolumes(vols);
+            // Store last-used psi inputs if you want to repopulate next time:
+            // (The component itself owns the psi states; if you want them persisted here,
+            //  pass a callback prop and collect them.)
+          }}
+          initialPsiValues={lastPsiValues}
+        />
+      )}
+
+      {showVceDistancesResults && (
+        <OverpressureDistancesResultsModal
+          volumes={congestedVolumes}
+          onClose={() => setShowVceDistancesResults(false)}
+        />
+      )}
+
     </div>
   );
 };
