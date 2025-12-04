@@ -113,15 +113,18 @@ def vce_overpressure_results():
 
 def vce_overpressure_distances_results():
     data = request.get_json()
+    
     flash_data = data['flash_data']
-    flammable_mass_g = data['flammable_mass_g']
-    overpressures_psi = data['overpressures_psi']
+    flammable_mass_g = data['flammableMassG']
+    is_indoors = data['isIndoors']
+    congestion_level = data['congestionLevel']
+    overpressures_psi = data['overpressuresPsi']
     vce = VCE(logging=logging)
     dists_m = []
     press_psi = None
     try:
         for press_psi in overpressures_psi:
-            dist_m = vce.get_distance_m_to_target_overpressure(target_pressure_psi=press_psi, flammable_mass_g=flammable_mass_g, flash_data=flash_data)
+            dist_m = vce.get_distance_m_to_target_overpressure(target_pressure_psi=press_psi, flammable_mass_g=flammable_mass_g, flash_data=flash_data, congestion_level=congestion_level, is_indoors=is_indoors)
             dists_m.append(dist_m)
         return jsonify({'distances_m' : dists_m}), 200
     except Exception as e:

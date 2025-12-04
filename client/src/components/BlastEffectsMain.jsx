@@ -696,6 +696,7 @@ const BlastEffectsMain = () => {
 
       {showVceDistancesResults && (
         <OverpressureDistancesResultsModal
+          
           volumes={congestedVolumes}
           onClose={() => setShowVceDistancesResults(false)}
         />

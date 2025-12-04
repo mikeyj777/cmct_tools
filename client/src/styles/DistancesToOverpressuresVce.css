@@ -1,0 +1,117 @@
+/* Overlay background (non-blurred main app) */
+.dto-vce-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* semi-transparent dark */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  
+  /* Modal box */
+  .dto-vce-modal {
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header */
+  .dto-vce-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #ffffff;
+  }
+  
+  .dto-vce-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .dto-vce-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #000000;
+  }
+  
+  /* Body */
+  .dto-vce-body {
+    padding: 16px;
+    background-color: #ffffff;
+  }
+  
+  .dto-vce-body p {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #000000;
+  }
+  
+  .dto-vce-input-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .dto-vce-input-group label {
+    display: flex;
+    flex-direction: column;
+    color: #000000;
+  }
+  
+  .dto-vce-input-group input {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  .dto-vce-status {
+    margin-top: 12px;
+    font-style: italic;
+    color: #000000;
+  }
+  
+  /* Footer */
+  .dto-vce-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #ffffff;
+  }
+  
+  .dto-vce-cancel, .dto-vce-ok {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .dto-vce-cancel {
+    background-color: #f44336;
+    color: #ffffff;
+  }
+  
+  .dto-vce-ok {
+    background-color: #00c853;
+    color: #ffffff;
+  }
+  

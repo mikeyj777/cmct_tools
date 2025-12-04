@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { calculateVolumeExtents } from '../../utils/geospatial';
 import { getApiUrl } from '../../utils/mapUtils';
 
+
 const apiUrl = getApiUrl();
 
 const DistanceToOverpressuresVce = ({
@@ -18,11 +19,10 @@ const DistanceToOverpressuresVce = ({
   const [psi1, setPsi1] = useState(initialPsiValues[0] ?? '');
   const [psi2, setPsi2] = useState(initialPsiValues[1] ?? '');
   const [psi3, setPsi3] = useState(initialPsiValues[2] ?? '');
-
   const [isCalculating, setIsCalculating] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(null);
 
-  // Disable background scroll and close on Escape, consistent with ResultsModal behavior
+  // Disable background scroll and close on Escape
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e) => {
@@ -83,43 +83,32 @@ const DistanceToOverpressuresVce = ({
         const acc = await accP;
         setCurrentIdx(idx);
 
-        // Validate dimensions and flammable mass presence
         if (!vol.width || !vol.length || !vol.height) {
           updateGuidanceBanner(`Skipping volume ${idx + 1}: Missing dimensions`, 'warning');
-          return [
-            ...acc,
-            {
-              ...vol,
-              overpressureDistances: null,
-              overpressureDistancesError: 'Missing volume dimensions'
-            }
-          ];
+          return [...acc, {
+            ...vol,
+            overpressureDistances: null,
+            overpressureDistancesError: 'Missing volume dimensions'
+          }];
         }
         if (vol.flammableMassG == null || !Number.isFinite(vol.flammableMassG)) {
           updateGuidanceBanner(`Skipping volume ${idx + 1}: Missing flammable mass`, 'warning');
-          return [
-            ...acc,
-            {
-              ...vol,
-              overpressureDistances: null,
-              overpressureDistancesError: 'Missing flammable mass'
-            }
-          ];
+          return [...acc, {
+            ...vol,
+            overpressureDistances: null,
+            overpressureDistancesError: 'Missing flammable mass'
+          }];
         }
 
-        // Compute extents
         let dims;
         try {
           dims = calculateVolumeExtents(vol, currentReleaseLocation);
         } catch (e) {
-          return [
-            ...acc,
-            {
-              ...vol,
-              overpressureDistances: null,
-              overpressureDistancesError: 'Failed to compute extents'
-            }
-          ];
+          return [...acc, {
+            ...vol,
+            overpressureDistances: null,
+            overpressureDistancesError: 'Failed to compute extents'
+          }];
         }
 
         const { xMin, xMax, yMin, yMax, zMin, zMax } = dims;
@@ -136,19 +125,16 @@ const DistanceToOverpressuresVce = ({
               zMin,
               zMax,
               flash_data: flammableExtentData.flash_data,
-              // Distances to compute for these psi thresholds:
-              overpressures_psi: vals,
-              // Include per-volume flammable mass (grams)
-              flammable_mass_g: vol.flammableMassG
+              overpressuresPsi: vals,
+              flammableMassG: vol.flammableMassG,
+              isIndoors: vol.isIndoors,
+              congestionLevel: vol.congestionLevel
             })
           });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP error ${response.status}`);
 
           const data = await response.json();
-          // Expecting data like: { distances_m: [d1, d2, d3] }
           if (!data || !Array.isArray(data.distances_m) || data.distances_m.length !== vals.length) {
             throw new Error('Unexpected response format from distances API');
           }
@@ -160,28 +146,21 @@ const DistanceToOverpressuresVce = ({
 
           updateGuidanceBanner(`Calculated distances for volume ${idx + 1}`, 'default');
 
-          return [
-            ...acc,
-            {
-              ...vol,
-              overpressureDistances: distancesMap,
-              overpressureDistancesError: null
-            }
-          ];
+          return [...acc, {
+            ...vol,
+            overpressureDistances: distancesMap,
+            overpressureDistancesError: null
+          }];
         } catch (err) {
           console.error(`Error calculating distances for volume ${idx + 1}:`, err);
-          return [
-            ...acc,
-            {
-              ...vol,
-              overpressureDistances: null,
-              overpressureDistancesError: err?.message || 'Calculation failed'
-            }
-          ];
+          return [...acc, {
+            ...vol,
+            overpressureDistances: null,
+            overpressureDistancesError: err?.message || 'Calculation failed'
+          }];
         }
       }, Promise.resolve([]));
 
-      // Overwrite volumes in parent
       onCongestedVolumesUpdate(updated);
 
       const okCount = updated.filter((v) => v.overpressureDistances && !v.overpressureDistancesError).length;
@@ -191,7 +170,6 @@ const DistanceToOverpressuresVce = ({
         okCount === updated.length ? 'success' : 'warning'
       );
 
-      // Close after success; remove this if you prefer to keep the modal open
       onClose();
     } catch (e) {
       console.error('Unexpected error during distance calculations:', e);
@@ -203,19 +181,16 @@ const DistanceToOverpressuresVce = ({
   };
 
   const handleOverlayClick = (e) => {
-    // Match ResultsModal behavior: clicking overlay closes only if not calculating
-    if (e.target.className === 'results-modal-overlay' && !isCalculating) {
-      onClose();
-    }
+    if (e.target.className.includes('dto-vce-overlay') && !isCalculating) onClose();
   };
 
   return (
-    <div className="results-modal-overlay" onClick={handleOverlayClick}>
-      <div className="results-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="results-modal-header">
+    <div className="dto-vce-overlay" onClick={handleOverlayClick}>
+      <div className="dto-vce-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="dto-vce-header">
           <h3>Identify distances to overpressure limits for VCE</h3>
           <button
-            className="close-button-icon"
+            className="dto-vce-close-btn"
             onClick={onClose}
             disabled={isCalculating}
             aria-label="Close"
@@ -225,11 +200,11 @@ const DistanceToOverpressuresVce = ({
           </button>
         </div>
 
-        <div className="results-modal-body">
+        <div className="dto-vce-body">
           <p>Enter three overpressure thresholds (psi). Distances will be calculated for all congested volumes.</p>
 
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <label style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="dto-vce-input-group">
+            <label>
               <span>Overpressure (psi) 1</span>
               <input
                 type="number"
@@ -240,7 +215,7 @@ const DistanceToOverpressuresVce = ({
                 disabled={isCalculating}
               />
             </label>
-            <label style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>
               <span>Overpressure (psi) 2</span>
               <input
                 type="number"
@@ -251,7 +226,7 @@ const DistanceToOverpressuresVce = ({
                 disabled={isCalculating}
               />
             </label>
-            <label style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>
               <span>Overpressure (psi) 3</span>
               <input
                 type="number"
@@ -265,25 +240,15 @@ const DistanceToOverpressuresVce = ({
           </div>
 
           {isCalculating && (
-            <p style={{ marginTop: 12 }}>
-              Calculating distances {currentIdx != null ? `(Volume ${currentIdx + 1} of ${congestedVolumes.length})` : ''}
-              …
+            <p className="dto-vce-status">
+              Calculating distances {currentIdx != null ? `(Volume ${currentIdx + 1} of ${congestedVolumes.length})` : ''}…
             </p>
           )}
         </div>
 
-        <div className="results-modal-footer">
-          <button className="cancel-button" onClick={onClose} disabled={isCalculating}>
-            Cancel
-          </button>
-          <button
-            className="ok-button"
-            onClick={handleOk}
-            disabled={isCalculating}
-            style={{ marginLeft: 8 }}
-          >
-            OK
-          </button>
+        <div className="dto-vce-footer">
+          <button className="dto-vce-cancel" onClick={onClose} disabled={isCalculating}>Cancel</button>
+          <button className="dto-vce-ok" onClick={handleOk} disabled={isCalculating}>OK</button>
         </div>
       </div>
     </div>
