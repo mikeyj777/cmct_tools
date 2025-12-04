@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from controllers.rad_analysis_controller import radiation_analysis
-from controllers.blast_analysis_controller import flammable_envelope, flammable_mass, vce_overpressure_results, pv_burst_results
+from controllers.blast_analysis_controller import flammable_envelope, flammable_mass, vce_overpressure_results, vce_overpressure_distances_results, pv_burst_results
 
 import logging
 
@@ -21,26 +21,47 @@ CORS(app, resources={
 # endpoint - need radiation analysis
 @app.route('/api/radiation_analysis', methods=['POST'])
 async def rad_route():
-    logging.debug("here on the back end.")
     return await radiation_analysis()
 
 @app.route('/api/vce_get_flammable_envelope', methods=['POST'])
 async def vce_flammable_envelope_route():
-    logging.debug("flammable envelope.")
     return await flammable_envelope()
 
 @app.route('/api/vce_get_flammable_mass', methods=['POST'])
 def vce_flammable_mass_route():
-    logging.debug("flammable mass.")
     return flammable_mass()
 
 @app.route('/api/vce_get_overpressure_results', methods=['POST'])
 def vce_overpressure_route():
-    logging.debug("vce flask app.")
     return vce_overpressure_results()
+
+@app.route('/api/vce_get_distances_to_overpressures', methods=['POST'])
+def vce_overpressure_distances_route():
+    return vce_overpressure_distances_results()
 
 @app.route('/api/get_pv_burst_results', methods=['POST'])
 async def pv_burst_overpressure_route():
     logging.debug("pv burst")
     return pv_burst_results()
 
+'''
+const response = await fetch(`${apiUrl}/api/vce_get_distances_to_overpressures`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              xMin,
+              xMax,
+              yMin,
+              yMax,
+              zMin,
+              zMax,
+              flammable_envelope_list_of_dicts: flammableExtentData.flammable_envelope_list_of_dicts,
+              flash_data: flammableExtentData.flash_data,
+              // Distances to compute for these psi thresholds:
+              overpressures_psi: vals,
+              // Include per-volume flammable mass (grams)
+              flammable_mass_g: vol.flammableMassG
+            })
+          });
+
+'''

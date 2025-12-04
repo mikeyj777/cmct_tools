@@ -108,7 +108,24 @@ def vce_overpressure_results():
         updated_buildings = vce.get_blast_overpressures_at_buildings_from_congested_volumes_store_highest_pressure_at_each_building_return_updated_buildings(buildings=buildings, congested_volumes=congested_volumes, flash_data=flash_data)
         return jsonify({'updatedBuildings':updated_buildings}), 200
     except Exception as e:
-        logging.debug(f'exception caused from building overpressure calculation.  error info: {e}')
+        logging.debug(f'Exception caused from building overpressure calculation.  error info: {e}')
+        return jsonify({'error': 'Internal Server Error'}), 500
+
+def vce_overpressure_distances_results():
+    data = request.get_json()
+    flash_data = data['flash_data']
+    flammable_mass_g = data['flammable_mass_g']
+    overpressures_psi = data['overpressures_psi']
+    vce = VCE(logging=logging)
+    dists_m = []
+    press_psi = None
+    try:
+        for press_psi in overpressures_psi:
+            dist_m = vce.get_distance_m_to_target_overpressure(target_pressure_psi=press_psi, flammable_mass_g=flammable_mass_g, flash_data=flash_data)
+            dists_m.append(dist_m)
+        return jsonify({'distances_m' : dists_m}), 200
+    except Exception as e:
+        logging.debug(f'Exception caused while finding distances to target over pressure.  pressure target on error: {press_psi} | distances so far: {dists_m} | error info: {e}')
         return jsonify({'error': 'Internal Server Error'}), 500
 
 def pv_burst_results(path_to_json_file=None):

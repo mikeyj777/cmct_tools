@@ -135,7 +135,6 @@ const DistanceToOverpressuresVce = ({
               yMax,
               zMin,
               zMax,
-              flammable_envelope_list_of_dicts: flammableExtentData.flammable_envelope_list_of_dicts,
               flash_data: flammableExtentData.flash_data,
               // Distances to compute for these psi thresholds:
               overpressures_psi: vals,
